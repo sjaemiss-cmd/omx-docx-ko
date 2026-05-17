@@ -1,0 +1,2353 @@
+HTML
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="Oh My Codex v0.17.0 문서 - Hermes MCP 브리지, 표준 설계 워크플로, 플러그인-mode 검색, 적대적 UltraQA 및 Codex CLI에 대한 강화된 런타임 소유권" name="description"/>
+<!-- Open Graph -->
+<meta content="website" property="og:type"/>
+<meta content="https://oh-my-codex.dev/docs.ko.html" property="og:url"/>
+<meta content="문서 | Oh My Codex" property="og:title"/>
+<meta content="oh-my-codex v0.17.0 - Hermes MCP 브리지, 표준 설계 워크플로, 플러그인-mode 검색, 적대적 UltraQA 및 강화된 런타임 소유권에 대한 전체 문서입니다." property="og:description"/>
+<meta content="https://yeachan-heo.github.io/oh-my-codex-website/social-preview.png" property="og:image"/>
+<!-- Twitter -->
+<meta content="summary_large_image" name="twitter:card"/>
+<meta content="문서 | Oh My Codex" name="twitter:title"/>
+<meta content="v0.17.0이 출시되었습니다: Hermes MCP 브리지, 표준 $design 워크플로, 플러그인-mode 검색, 적대적 UltraQA 및 강화된 런타임 소유권." name="twitter:description"/>
+<meta content="https://yeachan-heo.github.io/oh-my-codex-website/social-preview.png" name="twitter:image"/>
+<title>문서 | Oh My Codex</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;family=Space+Grotesk:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<!-- Design System -->
+<link href="css/design-system.css" rel="stylesheet"/>
+<style>
+    /* =========================================
+       DOCS LAYOUT & THEME OVERRIDES
+       ========================================= */
+    :root {
+      --sidebar-width: 280px;
+      --header-height-mobile: 60px;
+      --content-max-width: 960px;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at top left, rgba(16, 163, 127, 0.12), transparent 28%),
+        radial-gradient(circle at 82% 10%, rgba(59, 130, 246, 0.1), transparent 24%),
+        linear-gradient(180deg, #0f1220 0%, var(--bg-primary) 28%, #07080d 100%);
+      color: var(--text-primary);
+    }
+
+    /* Layout */
+    .docs-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .docs-sidebar {
+      width: var(--sidebar-width);
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 22%),
+        rgba(12, 15, 24, 0.88);
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      overflow-y: auto;
+      z-index: 101;
+      display: flex;
+      flex-direction: column;
+      backdrop-filter: blur(18px);
+      box-shadow: 20px 0 40px rgba(0, 0, 0, 0.22);
+    }
+
+    .docs-main {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      min-width: 0;
+      padding: 2rem 4rem;
+    }
+
+    .docs-content {
+      max-width: var(--content-max-width);
+      margin: 0 auto;
+      padding-bottom: 4rem;
+    }
+
+    .docs-hero {
+      position: relative;
+      padding: 2rem;
+      margin: 1rem 0 2.5rem;
+      border-radius: 28px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background:
+        radial-gradient(circle at top right, rgba(59, 130, 246, 0.18), transparent 28%),
+        radial-gradient(circle at left center, rgba(16, 163, 127, 0.18), transparent 32%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent 22%),
+        rgba(12, 15, 24, 0.82);
+      box-shadow: 0 28px 60px rgba(0, 0, 0, 0.28);
+    }
+
+    .docs-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 25%, rgba(255, 255, 255, 0.08) 50%, transparent 75%);
+      transform: translateX(-100%);
+      animation: shimmer 7s ease-in-out infinite;
+      pointer-events: none;
+      opacity: 0.35;
+    }
+
+    .docs-hero__inner {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
+      gap: 1.5rem;
+      align-items: stretch;
+    }
+
+    .docs-hero__lede {
+      font-size: 1.1rem;
+      max-width: 52ch;
+    }
+
+    .docs-hero__chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+    }
+
+    .docs-hero__chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.55rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      background: rgba(19, 24, 34, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+    }
+
+    .docs-hero__chip strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .docs-command-panel {
+      padding: 1.1rem;
+      border-radius: 22px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(8, 11, 18, 0.78);
+      box-shadow: 0 20px 44px rgba(0, 0, 0, 0.24);
+      display: grid;
+      gap: 0.9rem;
+    }
+
+    .docs-command-panel__kicker {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-primary);
+    }
+
+    .docs-command-panel pre {
+      margin: 0;
+      background: transparent;
+      border: 0;
+      padding: 0;
+      font-size: 0.88rem;
+      line-height: 1.75;
+      color: #d7f7ee;
+    }
+
+    .docs-command-panel ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .docs-command-panel li {
+      margin: 0;
+      padding: 0.8rem 0.9rem;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: var(--text-secondary);
+    }
+
+    .docs-command-panel li strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--text-primary);
+    }
+
+    .docs-command-panel li {
+      line-height: 1.5;
+    }
+
+    /* Typography Overrides */
+    .docs-content h1 {
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-default);
+      padding-bottom: 1rem;
+    }
+
+    .docs-content h2 {
+      margin-top: 3.5rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-default);
+      position: relative;
+    }
+
+    .docs-content h3 {
+      margin-top: 2.5rem;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .docs-content h4 {
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+.docs-content p, .docs-content ul, .docs-content ol {
+  margin-bottom: 1.25rem;
+  color: var(--text-secondary);
+}
+
+/* 3D Polish */
+.tilt-3d-polish {
+  position: relative;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.5s ease;
+}
+
+.tilt-3d-polish::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  background: radial-gradient(
+    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(16, 163, 127, 0.15) 0%,
+    transparent 70%
+  );
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+  transform: translateZ(-10px);
+}
+
+.tilt-3d-polish:hover {
+  transform: perspective(1000px) rotateX(4deg) rotateY(-4deg) translateY(-8px);
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(16, 163, 127, 0.2);
+}
+
+.tilt-3d-polish:hover::before {
+  opacity: 1;
+}
+
+.tilt-3d-child {
+  transform: translateZ(40px);
+  transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.tilt-3d-polish:hover .tilt-3d-child {
+  transform: translateZ(60px) scale(1.05);
+}
+
+    .docs-content ul, .docs-content ol {
+      padding-left: 1.5rem;
+    }
+
+    .docs-content li {
+      margin-bottom: 0.5rem;
+    }
+
+    .docs-content code {
+      font-size: 0.85em;
+    }
+
+    /* Code Blocks (docs-specific wrapper) */
+    .code-block-wrapper {
+      background: var(--code-bg, #161b22);
+      border: 1px solid var(--code-border, #30363d);
+      border-radius: 0.5rem;
+      overflow: hidden;
+      margin: 1.25rem 0;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .code-block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 1rem;
+      background: var(--code-header-bg, #1c2129);
+      border-bottom: 1px solid var(--code-border, #30363d);
+    }
+
+    .code-lang {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .code-block-wrapper pre {
+      margin: 0;
+      padding: 1rem;
+      overflow-x: auto;
+      background: transparent;
+    }
+
+    .code-block-wrapper code {
+      font-family: inherit;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--text-primary);
+    }
+
+    .code-with-line-numbers {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .line-numbers {
+      display: flex;
+      flex-direction: column;
+      text-align: right;
+      color: var(--text-tertiary, #484f58);
+      user-select: none;
+      flex-shrink: 0;
+      line-height: 1.6;
+      font-size: 0.85rem;
+    }
+
+    .line-number {
+      display: block;
+    }
+
+    .copy-btn {
+      padding: 4px 8px;
+      background: transparent;
+      border: 1px solid var(--code-border, #30363d);
+      border-radius: 0.25rem;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+      display: flex;
+      align-items: center;
+    }
+
+    .copy-btn:hover {
+      color: var(--text-secondary);
+      border-color: var(--border-hover, #6e7681);
+    }
+
+    .copy-btn.copied {
+      color: #3fb950;
+      border-color: #3fb950;
+    }
+
+    /* Anchor Links */
+    .anchor-link {
+      position: absolute;
+      left: -1.25rem;
+      opacity: 0;
+      color: var(--accent-primary);
+      text-decoration: none;
+      transition: opacity 0.2s;
+      font-weight: 400;
+    }
+
+    h2:hover .anchor-link,
+    h3:hover .anchor-link {
+      opacity: 1;
+    }
+
+    /* Sidebar Components */
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-default);
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+
+    .sidebar-brand__icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent-primary), #059669);
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .sidebar-brand__version {
+      font-size: 0.75rem;
+      background: var(--bg-tertiary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--text-secondary);
+      margin-left: auto;
+      border: 1px solid var(--border-default);
+    }
+
+    .sidebar-search {
+      padding: 1rem 1.5rem 0.5rem;
+      position: sticky;
+      top: 0;
+      background: var(--bg-secondary);
+      z-index: 10;
+    }
+
+    .search-input-wrapper {
+      position: relative;
+    }
+
+    .sidebar-nav {
+      padding: 1rem 1.5rem 2rem;
+    }
+
+    .sidebar-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .sidebar-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-tertiary);
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      padding-left: 0.75rem;
+    }
+
+    .sidebar-link {
+      display: block;
+      padding: 0.4rem 0.75rem;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      border-radius: 0.6rem;
+      text-decoration: none;
+      transition: all 0.2s;
+      border-left: 2px solid transparent;
+    }
+
+    .sidebar-link:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.04);
+      text-decoration: none;
+    }
+
+    .sidebar-link.active {
+      color: var(--accent-primary);
+      background: rgba(16, 163, 127, 0.08);
+      border-left-color: var(--accent-primary);
+      font-weight: 500;
+      box-shadow: inset 0 0 0 1px rgba(16, 163, 127, 0.12);
+    }
+
+    /* Collapsible */
+    .collapsible { margin-bottom: 0.25rem; }
+    .collapsible-toggle {
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.5rem 0.75rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .collapsible-toggle:hover { color: var(--text-primary); }
+    .submenu { padding-left: 0.75rem; list-style: none !important; }
+
+    /* Tables */
+    .table-wrapper {
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border-default);
+      border-radius: 0.5rem;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      text-align: left;
+      padding: 0.75rem 1rem;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border-default);
+    }
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-default);
+      color: var(--text-secondary);
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface-hover); }
+
+    /* Callouts */
+    .callout {
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+      border-radius: 0.5rem;
+      border-left: 4px solid;
+      background: var(--bg-tertiary);
+    }
+    .callout-title { font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary); }
+    .callout p { margin: 0; }
+    .callout.warning { border-color: var(--accent-warning); background: rgba(245, 158, 11, 0.05); }
+    .callout.info { border-color: var(--accent-info); background: rgba(59, 130, 246, 0.05); }
+
+    /* Pipeline Diagram */
+    .pipeline-diagram {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      background: var(--bg-secondary);
+      border-radius: 0.75rem;
+      border: 1px solid var(--border-default);
+      margin: 2rem 0;
+    }
+    .pipeline-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-default);
+      border-radius: 0.5rem;
+      min-width: 100px;
+    }
+    .pipeline-stage__icon {
+      width: 28px;
+      height: 28px;
+      background: var(--surface-default);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: var(--accent-primary);
+      border: 1px solid var(--border-default);
+    }
+    .pipeline-stage__label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+    }
+    .pipeline-arrow {
+      color: var(--text-tertiary);
+      font-size: 1.25rem;
+    }
+
+    /* Mode Cards */
+    .mode-card {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 22%),
+        rgba(17, 20, 31, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 18px 36px rgba(0, 0, 0, 0.2);
+    }
+    .mode-card:hover {
+      border-color: var(--accent-primary);
+      transform: translateY(-4px);
+      box-shadow: 0 24px 44px rgba(0, 0, 0, 0.28);
+    }
+    .mode-card__header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+    .mode-card__icon {
+      width: 48px; height: 48px; border-radius: 0.5rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; background: var(--bg-tertiary);
+    }
+    .mode-card__title { margin: 0; font-size: 1.1rem; color: var(--text-primary); }
+    .mode-card__keyword {
+      font-family: var(--font-mono); font-size: 0.75rem;
+      padding: 2px 6px; background: var(--surface-hover);
+      border-radius: 4px; color: var(--accent-primary);
+    }
+    .mode-card__description { margin-bottom: 1rem; font-size: 0.95rem; }
+    .mode-card__features { list-style: none; padding: 0; margin: 0; }
+    .mode-card__features li {
+      display: flex; align-items: flex-start; gap: 0.5rem;
+      font-size: 0.85rem; margin-bottom: 0.25rem;
+    }
+    .mode-card__features li::before {
+      content: '•'; color: var(--accent-primary); font-weight: bold;
+    }
+
+    /* Lane Cards */
+    .lane-card {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 22%),
+        rgba(17, 20, 31, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 18px 36px rgba(0, 0, 0, 0.2);
+    }
+    .lane-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    }
+    .lane-card--build::before { background: #3b82f6; }
+    .lane-card--review::before { background: #8b5cf6; }
+    .lane-card--domain::before { background: #f59e0b; }
+    .lane-card--product::before { background: #22c55e; }
+    .lane-card--coord::before { background: #ec4899; }
+
+    .lane-card__badge {
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      padding: 2px 6px; border-radius: 4px; letter-spacing: 0.05em;
+    }
+    .lane-card--build .lane-card__badge { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+    .lane-card--review .lane-card__badge { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+    .lane-card--domain .lane-card__badge { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+    .lane-card--product .lane-card__badge { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
+    .lane-card--coord .lane-card__badge { background: rgba(236, 72, 153, 0.1); color: #ec4899; }
+
+    .lane-card__title { margin: 0.75rem 0 1rem; font-size: 1.1rem; }
+    .lane-card__agents { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .agent-tag {
+      font-family: var(--font-mono); font-size: 0.8rem;
+      background: var(--bg-tertiary); border: 1px solid var(--border-default);
+      padding: 4px 8px; border-radius: 4px; color: var(--text-secondary);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .agent-tag small { color: var(--text-tertiary); font-size: 0.7rem; }
+
+    /* Quick Start Steps */
+    .quick-start-steps { list-style: none; padding: 0; counter-reset: step; }
+    .quick-start-steps li {
+      display: flex; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--border-default);
+      counter-increment: step;
+    }
+    .quick-start-steps li:last-child { border-bottom: none; }
+    .quick-start-steps li::before {
+      content: counter(step); width: 24px; height: 24px;
+      background: var(--accent-primary); color: white;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 700; flex-shrink: 0; margin-top: 2px;
+    }
+    .qs-content h4 { margin: 0 0 0.25rem 0; font-size: 0.95rem; }
+    .qs-content p { margin: 0; font-size: 0.85rem; }
+
+    /* Workflow Diagram */
+    .workflow {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem;
+      background: var(--bg-tertiary); padding: 1rem; border-radius: 0.5rem;
+      font-family: var(--font-mono); font-size: 0.85rem; margin: 1rem 0;
+    }
+    .workflow__step {
+      background: var(--bg-secondary); border: 1px solid var(--border-default);
+      padding: 0.25rem 0.5rem; border-radius: 0.25rem; color: var(--accent-primary);
+    }
+    .workflow__arrow { color: var(--text-tertiary); }
+
+    /* Mobile Responsive */
+    .mobile-menu-btn {
+      display: none; position: fixed; top: 1rem; left: 1rem; z-index: 100;
+      background: var(--bg-secondary); border: 1px solid var(--border-default);
+      padding: 0.5rem; border-radius: 0.5rem; cursor: pointer;
+      touch-action: manipulation;
+    }
+    .mobile-menu-btn svg { width: 24px; height: 24px; color: var(--text-primary); }
+    .sidebar-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      z-index: 40; opacity: 0; visibility: hidden; transition: all 0.3s;
+      backdrop-filter: blur(2px);
+    }
+    .sidebar-overlay.active { opacity: 1; visibility: visible; }
+
+    @media (max-width: 1024px) {
+      .docs-sidebar { transform: translateX(-100%); }
+      .docs-sidebar.open { transform: translateX(0); }
+      .docs-main { margin-left: 0; padding: 5rem 1.5rem 2rem; }
+      .mobile-menu-btn { display: block; }
+      .docs-hero__inner { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .docs-main {
+        padding: 5rem 1rem 2rem;
+      }
+
+      .docs-hero {
+        padding: 1.4rem;
+        border-radius: 22px;
+      }
+    }
+
+    /* Back to top */
+    .back-to-top {
+      position: fixed; bottom: 2rem; right: 2rem;
+      width: 40px; height: 40px; background: var(--accent-primary);
+      color: white; border: none; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; opacity: 0; visibility: hidden; transition: all 0.3s;
+      z-index: 90;
+    }
+    .back-to-top.visible { opacity: 1; visibility: visible; }
+    .back-to-top:hover { transform: translateY(-2px); background: var(--accent-primary-hover); }
+
+    /* Utility */
+    .skip-to-content {
+      position: absolute; top: -100px; left: 0; background: var(--accent-primary);
+      color: white; padding: 0.5rem 1rem; z-index: 200; transition: top 0.2s;
+    }
+    .skip-to-content:focus { top: 0; }
+    .search-results {
+      position: absolute; top: 100%; left: 0; right: 0;
+      background: var(--bg-secondary); border: 1px solid var(--border-default);
+      border-radius: 0.5rem; max-height: 300px; overflow-y: auto;
+      z-index: 100; display: none; margin-top: 0.5rem;
+    }
+    .search-overlay { position: fixed; inset: 0; z-index: 9; display: none; }
+  
+
+    /* Plain-language Korean documentation helpers */
+    .plain-language-guide {
+      margin: 2rem 0 2.75rem;
+      padding: 1.5rem;
+      border: 1px solid rgba(16, 163, 127, 0.28);
+      border-radius: 24px;
+      background: rgba(16, 163, 127, 0.055);
+    }
+    .easy-note {
+      margin: 1.25rem 0;
+      padding: 1rem 1.1rem;
+      border: 1px solid rgba(125, 211, 252, 0.25);
+      border-radius: 16px;
+      background: rgba(14, 165, 233, 0.065);
+    }
+    .easy-note--intro { background: rgba(16, 163, 127, 0.08); }
+    .easy-note__title {
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 0.45rem;
+    }
+    .easy-note p,
+    .easy-note li { color: var(--text-secondary); }
+    .easy-note ul { margin: 0.4rem 0 0; padding-left: 1.2rem; }
+    .glossary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 0.85rem;
+      margin-top: 1rem;
+    }
+    .glossary-item {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 0.9rem;
+      background: rgba(255, 255, 255, 0.035);
+    }
+    .glossary-item h3 { font-size: 0.98rem; margin-bottom: 0.4rem; }
+    .glossary-item p { margin: 0; color: var(--text-secondary); font-size: 0.92rem; }
+
+    .section-term-list {
+      margin-top: 0.85rem;
+      padding-top: 0.85rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .section-term-list__title { font-weight: 700; margin-bottom: 0.35rem; }
+    .section-term-list ul { margin: 0; padding-left: 1.1rem; }
+    .section-term-list li { margin: 0.25rem 0; }
+    .section-term-list__more { margin: 0.5rem 0 0; font-size: 0.92rem; }
+</style>
+<meta content="ko" name="language"/></head>
+<body>
+<a class="skip-to-content" href="#main-content">주요 콘텐츠로 건너뛰기</a>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<button aria-label="탐색 전환" class="mobile-menu-btn" id="mobile-menu-btn">
+<svg fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<div class="docs-layout">
+<!-- SIDEBAR -->
+<aside class="docs-sidebar" id="sidebar">
+<a class="sidebar-brand" href="index.html">
+<div class="sidebar-brand__icon">OMX</div>
+<span class="sidebar-brand__text">Oh My Codex</span>
+<span class="sidebar-brand__version">v0.17.0</span>
+</a>
+<div class="sidebar-search">
+<div class="search-input-wrapper">
+<input autocomplete="off" class="search__input" id="search-input" placeholder="문서 검색..." type="search"/>
+<div class="search-results" id="search-results"></div>
+</div>
+</div>
+<nav class="sidebar-nav">
+<!-- Getting Started -->
+<div class="sidebar-section">
+<div class="sidebar-title">시작하기</div>
+<a class="sidebar-link" data-section="introduction" href="#introduction">소개</a><a class="sidebar-link" data-section="plain-language-guide" href="#plain-language-guide">쉬운 용어 풀이</a>
+<a class="sidebar-link" data-section="release-notes" href="#release-notes">릴리스 노트</a>
+<a class="sidebar-link" data-section="v08-feature-guides" href="#v08-feature-guides">v0.12.x 기능 가이드</a>
+<a class="sidebar-link" data-section="feat-dynamic-scaling" href="#feat-dynamic-scaling">동적 스케일링</a>
+<a class="sidebar-link" data-section="feat-ralplan-dr" href="#feat-ralplan-dr">RALPLAN-DR</a>
+<a class="sidebar-link" data-section="feat-openclaw" href="#feat-openclaw">OpenClaw</a>
+<a class="sidebar-link" data-section="feat-worktree-orchestration" href="#feat-worktree-orchestration">작업트리 오케스트레이션</a>
+<a class="sidebar-link" data-section="feat-gemini-teams" href="#feat-gemini-teams">Gemini 팀</a>
+<a class="sidebar-link" data-section="installation" href="#installation">설치</a>
+<a class="sidebar-link" data-section="quick-start" href="#quick-start">빠른 시작</a>
+</div>
+<!-- Architecture -->
+<div class="sidebar-section">
+<div class="sidebar-title">건축학</div>
+<a class="sidebar-link" data-section="philosophy" href="#philosophy">지휘자 철학</a>
+<a class="sidebar-link" data-section="agent-tiers" href="#agent-tiers">에이전트 계층</a>
+<a class="sidebar-link" data-section="team-architecture" href="#team-architecture">팀 아키텍처</a>
+<a class="sidebar-link" data-section="model-routing" href="#model-routing">모델 라우팅</a>
+<a class="sidebar-link" data-section="delegation" href="#delegation">위임 규칙</a>
+<a class="sidebar-link" data-section="advanced-orchestration" href="#advanced-orchestration">고급 오케스트레이션</a>
+</div>
+<!-- Execution Modes -->
+<div class="sidebar-section">
+<div class="sidebar-title">실행 모드</div>
+<div class="collapsible">
+<button class="collapsible-toggle">핵심 모드 <span>▾</span></button>
+<div class="submenu">
+<a class="sidebar-link" data-section="autopilot" href="#autopilot">Autopilot</a>
+<a class="sidebar-link" data-section="ralph" href="#ralph">Ralph</a>
+<a class="sidebar-link" data-section="ultrawork" href="#ultrawork">Ultrawork</a>
+</div>
+</div>
+<a class="sidebar-link" data-section="team-compositions" href="#team-compositions">팀 구성</a>
+</div>
+<!-- 에이전트 카탈로그(실행 모드의 팀 구성으로 이동) -->
+<!-- Tools & Config -->
+<div class="sidebar-section">
+<div class="sidebar-title">도구 및 구성</div>
+<a class="sidebar-link" data-section="mcp-tools" href="#mcp-tools">MCP 도구</a>
+<a class="sidebar-link" data-section="skills" href="#skills">기술 및 명령</a>
+<a class="sidebar-link" data-section="state-memory" href="#state-memory">상태 및 메모리</a>
+<a class="sidebar-link" data-section="configuration" href="#configuration">구성</a>
+</div>
+<!-- CLI Reference -->
+<div class="sidebar-section">
+<div class="sidebar-title">CLI 참고</div>
+<a class="sidebar-link" data-section="cli-getting-started" href="#cli-getting-started">시작하기</a>
+<a class="sidebar-link" data-section="cli-commands" href="#cli-commands">핵심 명령</a>
+<a class="sidebar-link" data-section="cli-launch-flags" href="#cli-launch-flags">발사 플래그</a>
+<a class="sidebar-link" data-section="cli-team" href="#cli-team">팀 명령</a>
+<a class="sidebar-link" data-section="cli-other" href="#cli-other">기타 명령</a>
+</div>
+<!-- Notifications -->
+<div class="sidebar-section">
+<div class="sidebar-title">알림</div>
+<a class="sidebar-link" data-section="notify-overview" href="#notify-overview">개요</a>
+<a class="sidebar-link" data-section="notify-setup" href="#notify-setup">빠른 설정</a>
+<a class="sidebar-link" data-section="notify-platforms" href="#notify-platforms">플랫폼</a>
+<a class="sidebar-link" data-section="notify-events" href="#notify-events">이벤트</a>
+<a class="sidebar-link" data-section="notify-verbosity" href="#notify-verbosity">다변</a>
+<a class="sidebar-link" data-section="notify-env-vars" href="#notify-env-vars">환경 변수</a>
+<a class="sidebar-link" data-section="notify-templates" href="#notify-templates">템플릿</a>
+<a class="sidebar-link" data-section="notify-example-config" href="#notify-example-config">예시 구성</a>
+<a class="sidebar-link" data-section="notify-reply" href="#notify-reply">응답 주입</a>
+</div>
+<!-- Workflows -->
+<div class="sidebar-section">
+<div class="sidebar-title">워크플로</div>
+<a class="sidebar-link" data-section="wf-full-auto" href="#wf-full-auto">PRD의 전체-Auto</a>
+<a class="sidebar-link" data-section="wf-no-brainer" href="#wf-no-brainer">아니요-Brainer</a>
+<a class="sidebar-link" data-section="wf-fix-debug" href="#wf-fix-debug">수정/디버깅</a>
+<a class="sidebar-link" data-section="wf-parallel-issues" href="#wf-parallel-issues">병렬 문제</a>
+</div>
+</nav>
+</aside>
+<!-- MAIN CONTENT -->
+<main class="docs-main" id="main-content">
+<div class="docs-content">
+<!-- Introduction -->
+<section data-section="" id="introduction">
+<h1>Oh My Codex 문서</h1>
+<p style="font-size: 1.25rem; color: var(--text-secondary); margin-bottom: 2rem;">
+            자율 조사, 오케스트레이션 래퍼, 팀 worktrees 및 의도-first 심층 인터뷰를 통해 Codex CLI를 조정된 운영 계층으로 전환합니다.
+          </p>
+<div class="docs-hero tilt-3d-polish">
+<div class="docs-hero__inner">
+<div>
+<p class="docs-hero__lede">v0.17.0은 제한된 Hermes MCP 브리지를 추가하고 표준을 설정합니다. <code>$design</code> 워크플로, 플러그인-mode 검색에서 OMX 기술 노출, 강화 <code>$ultraqa</code> 적대적인 e2e 기대치를 충족하고 Windows 후크, tmux 소유권, 시작 셸 격리, 커밋된 프로젝트 메모리 및 Ultragoal 조정을 강화합니다.</p>
+<div class="docs-hero__chips">
+<span class="docs-hero__chip"><strong>Hermes</strong> MCP</span>
+<span class="docs-hero__chip"><strong>$design</strong> 작업 흐름</span>
+<span class="docs-hero__chip"><strong>플러그인</strong> 발견</span>
+<span class="docs-hero__chip"><strong>UltraQA</strong> 적대적인</span>
+</div>
+</div>
+<aside class="docs-command-panel tilt-3d-polish">
+<span class="docs-command-panel__kicker">현재 명령 표면</span>
+<pre><code>omx setup          # refresh native hooks/plugins
+$design            # capture product/UI decisions
+$ultraqa           # adversarial e2e verification</code></pre>
+<ul>
+<li><strong>Hermes MCP:</strong> 제한된 조정 상태, 아티팩트, 로그 테일 및 팔로우-up 파견.</li>
+<li><strong>플러그인 모드:</strong> OMX 기술과 MCP 메타데이터는 로컬 Codex 플러그인 마켓플레이스를 통해 검색할 수 있습니다.</li>
+<li><strong>표준 파이프라인:</strong> deep-interview → ralplan/design → team/ralph로 이어지고 UltraQA 및 Ultragoal 증명 게이트를 거칩니다.</li>
+</ul>
+</aside>
+</div>
+</div>
+<div class="grid grid--2">
+<div class="card tilt-3d-polish">
+<h3 class="tilt-3d-child" style="margin-top:0">33 에이전트 프롬프트</h3>
+<p>빌드, 검토, 도메인, 제품 및 조정 레인 전반에 걸쳐 전문화된 프롬프트 카탈로그입니다.</p>
+</div>
+<div class="card tilt-3d-polish">
+<h3 class="tilt-3d-child" style="margin-top:0">37개 스킬</h3>
+<p>자동 조종, 검토, 조정, 알림, 연구 및 복구를 포괄하는 실행 워크플로입니다.</p>
+</div>
+<div class="card tilt-3d-polish">
+<h3 class="tilt-3d-child" style="margin-top:0">5 MCP 서버</h3>
+<p>상태, 메모리, 코드 인텔리전스, 팀 오케스트레이션 및 추적 가시성이 하나의 운영자 표면에 연결되어 있습니다.</p>
+</div>
+<div class="card tilt-3d-polish">
+<h3 class="tilt-3d-child" style="margin-top:0">v0.17.0 하이라이트</h3>
+<p>Hermes MCP, 표준 <code>$design</code>, 플러그인-mode 스킬 발견, 적대적 UltraQA, 런타임 소유권 강화 및 Ultragoal 조정.</p>
+</div>
+</div>
+<div class="easy-note"><div class="easy-note__title">비개발자를 위한 쉬운 풀이</div><ul><li>이 문서의 핵심은 “AI에게 그냥 한 번에 시키는 것”을 넘어, 계획·역할 배정·상태 저장·검증을 갖춘 작업 운영 방식으로 Codex CLI를 확장하는 것입니다.</li><li>명령 예시는 그대로 복사해 쓸 수 있도록 보존했으며, 주변 설명은 “왜 필요한지”를 이해하기 쉽게 덧붙였습니다.</li></ul><div class="section-term-list"><div class="section-term-list__title">이 섹션에서 나오는 용어 풀이</div><ul><li><strong>Oh My Codex / OMX</strong> — Codex CLI를 더 체계적으로 쓰게 해 주는 보조 도구입니다. 여러 AI 작업자를 불러 역할을 나누고, 작업 상태를 저장하고, 검증까지 이어 가도록 돕습니다.</li><li><strong>Codex CLI</strong> — 터미널에서 OpenAI Codex를 사용하는 명령줄 프로그램입니다. 마우스로 누르는 앱이 아니라 글자로 명령을 입력해 쓰는 도구라고 보면 됩니다.</li><li><strong>CLI</strong> — Command Line Interface의 줄임말입니다. 버튼 대신 터미널에 글자를 입력해서 프로그램을 실행하는 방식입니다.</li><li><strong>Hermes MCP</strong> — OMX 상태, 산출물, 로그 일부, 후속 작업 지시를 안전한 범위 안에서 다른 도구가 볼 수 있게 해 주는 연결 통로입니다.</li><li><strong>MCP</strong> — Model Context Protocol의 줄임말입니다. AI와 외부 도구가 정보를 주고받는 약속된 연결 방식입니다.</li><li><strong>워크플로우</strong> — 여러 단계를 정해진 순서대로 진행하는 일 처리 흐름입니다.</li><li><strong>플러그인</strong> — 기본 프로그램에 기능을 덧붙이는 확장 꾸러미입니다.</li><li><strong>$ultraqa / UltraQA</strong> — 일부러 까다로운 상황을 만들어 결과가 버티는지 확인하는 강한 품질검사 흐름입니다.</li><li><strong>e2e</strong> — end-to-end의 줄임말입니다. 사용자가 처음부터 끝까지 실제로 쓰는 전체 흐름을 검사한다는 뜻입니다.</li><li><strong>프로젝트 메모리</strong> — 프로젝트의 기술 스택, 규칙, 중요한 결정을 저장해 다음 작업에서도 참고하게 하는 기억 저장소입니다.</li><li><strong>Ultragoal</strong> — 큰 목표를 여러 단계로 나누고, 끝났다는 증거가 충분한지 확인하게 하는 목표 관리 흐름입니다.</li></ul></div></div></section><section class="plain-language-guide" data-section="" id="plain-language-guide"><h2 id="plain-language-guide-heading">비개발자를 위한 쉬운 설명과 용어 풀이</h2><div class="easy-note easy-note--intro"><div class="easy-note__title">읽는 방법</div><p>아래 원래 문서 내용은 삭제하지 않고 그대로 보존했습니다. 대신 각 섹션 끝에 쉬운 풀이를 추가하고, 낯선 기술 용어는 이 용어집에서 풀어 설명합니다.</p><p>명령어, 파일명, 환경 변수처럼 그대로 입력해야 하는 값은 영어 또는 코드 형태를 유지했습니다. 괄호 안 설명은 “무슨 뜻인지” 이해하기 위한 보조 설명입니다.</p><p>이 문서에서 “작업자”, “에이전트”, “모드”, “스킬”은 모두 AI가 일을 나누어 처리하도록 돕는 운영 단위입니다.</p></div><div class="glossary-grid"><article class="glossary-item"><h3>Oh My Codex / OMX</h3><p>Codex CLI를 더 체계적으로 쓰게 해 주는 보조 도구입니다. 여러 AI 작업자를 불러 역할을 나누고, 작업 상태를 저장하고, 검증까지 이어 가도록 돕습니다.</p></article><article class="glossary-item"><h3>Codex CLI</h3><p>터미널에서 OpenAI Codex를 사용하는 명령줄 프로그램입니다. 마우스로 누르는 앱이 아니라 글자로 명령을 입력해 쓰는 도구라고 보면 됩니다.</p></article><article class="glossary-item"><h3>CLI</h3><p>Command Line Interface의 줄임말입니다. 버튼 대신 터미널에 글자를 입력해서 프로그램을 실행하는 방식입니다.</p></article><article class="glossary-item"><h3>터미널</h3><p>명령어를 글자로 입력하는 검은 화면 또는 콘솔 창입니다.</p></article><article class="glossary-item"><h3>명령어</h3><p>컴퓨터에게 시키는 짧은 문장입니다. 예: npm install -g oh-my-codex 는 설치하라는 뜻입니다.</p></article><article class="glossary-item"><h3>npm</h3><p>Node.js 생태계의 프로그램 설치 도구입니다. 스마트폰 앱스토어처럼 자바스크립트 도구를 내려받는 창구입니다.</p></article><article class="glossary-item"><h3>설치</h3><p>내 컴퓨터에서 프로그램을 사용할 수 있도록 파일을 내려받고 등록하는 과정입니다.</p></article><article class="glossary-item"><h3>setup</h3><p>OMX가 필요한 설정 파일, 역할 프롬프트, 스킬, 연결 도구를 준비하는 초기 설정 단계입니다.</p></article><article class="glossary-item"><h3>doctor</h3><p>설치가 제대로 되었는지 건강검진처럼 점검하는 명령입니다.</p></article><article class="glossary-item"><h3>resume</h3><p>이전에 하던 Codex 작업 세션을 다시 이어 여는 기능입니다.</p></article><article class="glossary-item"><h3>에이전트</h3><p>특정 역할을 맡은 AI 작업자입니다. 예를 들어 설계 담당, 구현 담당, 검토 담당처럼 역할이 나뉩니다.</p></article><article class="glossary-item"><h3>프롬프트</h3><p>AI에게 역할, 규칙, 해야 할 일을 알려 주는 지시문입니다.</p></article><article class="glossary-item"><h3>스킬</h3><p>자주 쓰는 작업 절차를 묶어 둔 실행 방법입니다. 예: 계획 세우기, 코드 리뷰, 알림 설정.</p></article><article class="glossary-item"><h3>워크플로우</h3><p>여러 단계를 정해진 순서대로 진행하는 일 처리 흐름입니다.</p></article><article class="glossary-item"><h3>파이프라인</h3><p>계획 → 요구사항 정리 → 실행 → 검증 → 수정처럼 작업이 흐르는 단계 묶음입니다.</p></article><article class="glossary-item"><h3>오케스트레이션</h3><p>여러 작업자와 도구가 서로 엉키지 않게 순서와 역할을 조율하는 일입니다. 지휘자가 오케스트라를 지휘하는 것과 비슷합니다.</p></article><article class="glossary-item"><h3>Conductor / 지휘자</h3><p>직접 모든 코드를 쓰기보다, 적절한 AI 작업자에게 맡기고 결과를 검토하는 사람 또는 리더 역할을 뜻합니다.</p></article><article class="glossary-item"><h3>위임</h3><p>작업을 직접 하지 않고 알맞은 역할의 에이전트에게 맡기는 것입니다.</p></article><article class="glossary-item"><h3>검증</h3><p>결과가 정말 맞는지 테스트, 빌드, 실행 확인 등으로 증거를 모으는 단계입니다.</p></article><article class="glossary-item"><h3>릴리스</h3><p>새 버전을 공개하는 일입니다.</p></article><article class="glossary-item"><h3>패치 릴리스</h3><p>큰 기능 추가보다는 버그 수정이나 안정화 중심의 작은 버전 공개입니다.</p></article><article class="glossary-item"><h3>마이너 릴리스</h3><p>기존 사용법을 크게 깨지 않으면서 기능을 추가하는 버전 공개입니다.</p></article><article class="glossary-item"><h3>버전</h3><p>프로그램의 공개 번호입니다. v0.17.0처럼 적으며, 어떤 기능과 수정이 포함됐는지 구분합니다.</p></article><article class="glossary-item"><h3>Hermes MCP</h3><p>OMX 상태, 산출물, 로그 일부, 후속 작업 지시를 안전한 범위 안에서 다른 도구가 볼 수 있게 해 주는 연결 통로입니다.</p></article><article class="glossary-item"><h3>MCP</h3><p>Model Context Protocol의 줄임말입니다. AI와 외부 도구가 정보를 주고받는 약속된 연결 방식입니다.</p></article><article class="glossary-item"><h3>브리지</h3><p>서로 다른 도구나 시스템을 이어 주는 다리 역할의 기능입니다.</p></article><article class="glossary-item"><h3>아티팩트</h3><p>작업 결과로 남는 파일, 보고서, 계획서, 로그 같은 산출물입니다.</p></article><article class="glossary-item"><h3>로그</h3><p>프로그램이 어떤 일을 했는지 시간순으로 남긴 기록입니다.</p></article><article class="glossary-item"><h3>로그 tail</h3><p>로그 전체가 아니라 가장 최근 부분만 잘라 보는 것입니다.</p></article><article class="glossary-item"><h3>디스패치</h3><p>후속 작업이나 메시지를 알맞은 대상에게 보내는 동작입니다.</p></article><article class="glossary-item"><h3>플러그인</h3><p>기본 프로그램에 기능을 덧붙이는 확장 꾸러미입니다.</p></article><article class="glossary-item"><h3>마켓플레이스</h3><p>플러그인이나 기능을 찾아 설치할 수 있는 목록 또는 저장소입니다.</p></article><article class="glossary-item"><h3>캐시</h3><p>다시 쓰기 위해 임시로 저장해 둔 데이터입니다. 매번 새로 받지 않아 속도가 빨라집니다.</p></article><article class="glossary-item"><h3>메타데이터</h3><p>파일이나 기능 자체가 아니라 그것을 설명하는 부가 정보입니다. 예: 이름, 버전, 범위.</p></article><article class="glossary-item"><h3>DESIGN.md</h3><p>$design 워크플로가 남기는 설계 문서 파일입니다. 제품 방향, 화면 결정, 중요한 이유를 오래 보관합니다.</p></article><article class="glossary-item"><h3>$design</h3><p>제품이나 화면 설계 결정을 문서로 정리하는 OMX 스킬입니다.</p></article><article class="glossary-item"><h3>$ultraqa / UltraQA</h3><p>일부러 까다로운 상황을 만들어 결과가 버티는지 확인하는 강한 품질검사 흐름입니다.</p></article><article class="glossary-item"><h3>e2e</h3><p>end-to-end의 줄임말입니다. 사용자가 처음부터 끝까지 실제로 쓰는 전체 흐름을 검사한다는 뜻입니다.</p></article><article class="glossary-item"><h3>적대적 테스트</h3><p>일부러 실패하기 쉬운 상황, 잘못된 입력, 공격적인 요청을 넣어 문제가 없는지 보는 테스트입니다.</p></article><article class="glossary-item"><h3>프롬프트 인젝션</h3><p>사용자 입력 안에 AI의 원래 지시를 무시하게 만들려는 문구를 넣는 공격 방식입니다.</p></article><article class="glossary-item"><h3>오래된 상태</h3><p>현재 상황과 맞지 않는 예전 작업 상태나 기록입니다. 잘못 사용하면 엉뚱한 결론이 날 수 있습니다.</p></article><article class="glossary-item"><h3>런타임</h3><p>프로그램이 실제로 실행되고 있는 시간과 그 실행 환경을 말합니다.</p></article><article class="glossary-item"><h3>후크</h3><p>특정 사건이 생겼을 때 자동으로 실행되는 연결 지점입니다. 예: 시작할 때, 멈출 때 알림 보내기.</p></article><article class="glossary-item"><h3>Windows 네이티브 후크</h3><p>Windows 환경에서 별도 우회 없이 직접 동작하도록 만든 자동 실행 연결 기능입니다.</p></article><article class="glossary-item"><h3>tmux</h3><p>터미널 하나 안에서 여러 작업 창을 나누고 유지하는 도구입니다. 여러 AI 작업자를 동시에 띄울 때 사용됩니다.</p></article><article class="glossary-item"><h3>셸</h3><p>터미널 명령을 해석해 실행하는 프로그램입니다. Bash, PowerShell 등이 있습니다.</p></article><article class="glossary-item"><h3>프로젝트 메모리</h3><p>프로젝트의 기술 스택, 규칙, 중요한 결정을 저장해 다음 작업에서도 참고하게 하는 기억 저장소입니다.</p></article><article class="glossary-item"><h3>Ultragoal</h3><p>큰 목표를 여러 단계로 나누고, 끝났다는 증거가 충분한지 확인하게 하는 목표 관리 흐름입니다.</p></article><article class="glossary-item"><h3>worktree</h3><p>하나의 Git 저장소에서 작업 공간을 여러 개로 나눈 것입니다. 여러 사람이 동시에 고쳐도 서로 파일을 덮어쓰지 않게 돕습니다.</p></article><article class="glossary-item"><h3>Git</h3><p>파일 변경 이력을 기록하고 되돌릴 수 있게 하는 버전 관리 도구입니다.</p></article><article class="glossary-item"><h3>저장소 / repository</h3><p>프로젝트 파일과 변경 이력이 함께 들어 있는 작업 폴더입니다.</p></article><article class="glossary-item"><h3>브랜치</h3><p>Git에서 독립적으로 작업하기 위해 갈라 만든 작업 줄기입니다.</p></article><article class="glossary-item"><h3>커밋</h3><p>Git에 “여기까지의 변경을 하나의 기록으로 저장한다”라고 남기는 단위입니다.</p></article><article class="glossary-item"><h3>머지 / merge</h3><p>서로 다른 브랜치나 작업 결과를 하나로 합치는 일입니다.</p></article><article class="glossary-item"><h3>체리픽 / cherry-pick</h3><p>다른 브랜치의 특정 커밋 하나만 골라 가져오는 일입니다.</p></article><article class="glossary-item"><h3>리베이스 / rebase</h3><p>내 작업의 출발점을 최신 기준 위로 다시 얹어 정리하는 Git 작업입니다.</p></article><article class="glossary-item"><h3>충돌 / conflict</h3><p>두 작업자가 같은 부분을 다르게 고쳐 Git이 자동으로 합치지 못하는 상태입니다.</p></article><article class="glossary-item"><h3>팀 모드</h3><p>여러 AI 작업자 창을 띄워 한 목표를 나누어 처리하게 하는 OMX 실행 방식입니다.</p></article><article class="glossary-item"><h3>작업자 / worker</h3><p>팀 모드에서 실제로 분석, 수정, 검증 같은 일을 맡는 개별 AI 실행 단위입니다.</p></article><article class="glossary-item"><h3>리더</h3><p>팀 전체 방향을 정하고 작업자를 배정하며 최종 결과를 검토하는 중심 역할입니다.</p></article><article class="glossary-item"><h3>Codex / Claude / Gemini</h3><p>서로 다른 AI 도구 또는 AI 실행 환경입니다. OMX는 이들을 섞어 팀처럼 쓸 수 있습니다.</p></article><article class="glossary-item"><h3>혼합 공급자 팀</h3><p>Codex, Claude, Gemini 같은 여러 AI 도구를 한 팀 안에서 함께 쓰는 방식입니다.</p></article><article class="glossary-item"><h3>모델</h3><p>AI의 두뇌에 해당하는 실행 엔진입니다. 빠른 모델과 깊이 생각하는 모델이 구분됩니다.</p></article><article class="glossary-item"><h3>모델 라우팅</h3><p>쉬운 일은 빠른 모델에, 어려운 일은 더 깊게 생각하는 모델에 보내는 자동 배정입니다.</p></article><article class="glossary-item"><h3>Spark</h3><p>빠른 탐색과 간단한 정리에 쓰는 가벼운 모델 등급입니다.</p></article><article class="glossary-item"><h3>Standard</h3><p>일반 구현, 테스트, 리팩터링에 쓰는 기본 모델 등급입니다.</p></article><article class="glossary-item"><h3>xhigh reasoning</h3><p>AI가 더 많은 사고 시간을 쓰도록 하는 높은 추론 설정입니다.</p></article><article class="glossary-item"><h3>yolo 모드</h3><p>승인 절차를 줄이고 빠르게 실행하는 모드입니다. 편하지만 위험할 수 있습니다.</p></article><article class="glossary-item"><h3>madmax</h3><p>승인과 샌드박스 제한을 크게 우회하는 위험한 실행 옵션입니다. 믿을 수 있는 환경에서만 써야 합니다.</p></article><article class="glossary-item"><h3>샌드박스</h3><p>프로그램이 마음대로 시스템을 건드리지 못하게 제한하는 안전 울타리입니다.</p></article><article class="glossary-item"><h3>읽기 전용</h3><p>파일을 바꾸지 않고 보기만 하는 상태입니다.</p></article><article class="glossary-item"><h3>허용 목록 / allowlist</h3><p>실행해도 된다고 미리 허락한 명령이나 경로 목록입니다.</p></article><article class="glossary-item"><h3>경로 이탈 / path escape</h3><p>정해진 프로젝트 폴더 밖의 파일을 몰래 보거나 건드리려는 상황입니다.</p></article><article class="glossary-item"><h3>경로 탐색 / path traversal</h3><p>../ 같은 경로 조작으로 허용되지 않은 파일에 접근하려는 보안 문제입니다.</p></article><article class="glossary-item"><h3>설정 파일</h3><p>프로그램이 어떻게 동작할지 적어 두는 파일입니다. config.toml이나 .omx-config.json이 예입니다.</p></article><article class="glossary-item"><h3>config.toml</h3><p>Codex와 OMX 설정을 적는 TOML 형식의 설정 파일입니다.</p></article><article class="glossary-item"><h3>환경 변수</h3><p>터미널이나 운영체제에 임시로 저장해 프로그램이 읽게 하는 설정값입니다.</p></article><article class="glossary-item"><h3>JSON</h3><p>데이터를 중괄호와 키-값 형태로 적는 형식입니다. 사람이 읽고 프로그램도 읽기 쉽습니다.</p></article><article class="glossary-item"><h3>TOML</h3><p>설정 파일에 자주 쓰는 읽기 쉬운 텍스트 형식입니다.</p></article><article class="glossary-item"><h3>웹훅 / webhook</h3><p>어떤 사건이 생기면 지정된 인터넷 주소로 자동 메시지를 보내는 방식입니다.</p></article><article class="glossary-item"><h3>봇 토큰</h3><p>Telegram이나 Discord 봇을 식별하고 권한을 주는 비밀 키입니다. 공개하면 안 됩니다.</p></article><article class="glossary-item"><h3>채널 ID / chat ID</h3><p>알림을 보낼 대화방이나 채널을 가리키는 번호입니다.</p></article><article class="glossary-item"><h3>헤더 / header</h3><p>웹 요청에 함께 붙는 부가 정보입니다. 인증 키를 넣는 데 자주 쓰입니다.</p></article><article class="glossary-item"><h3>인증 / auth</h3><p>누가 요청했는지 확인하고 허락된 사람인지 검사하는 절차입니다.</p></article><article class="glossary-item"><h3>POST / PUT</h3><p>웹 서버로 데이터를 보낼 때 쓰는 요청 방식입니다. POST는 새로 보내기, PUT은 지정 위치에 넣거나 갱신하는 의미로 자주 씁니다.</p></article><article class="glossary-item"><h3>알림 이벤트</h3><p>세션 시작, 멈춤, 종료, 사용자 질문처럼 알림을 보낼 계기가 되는 사건입니다.</p></article><article class="glossary-item"><h3>reply injection / 응답 주입</h3><p>Telegram, Discord, Slack 답장을 Codex 세션 입력으로 넣어 원격으로 대화에 참여하는 기능입니다.</p></article><article class="glossary-item"><h3>LSP</h3><p>Language Server Protocol의 줄임말입니다. 코드 편집기가 정의 찾기, 참조 찾기, 오류 표시를 하도록 돕는 표준입니다.</p></article><article class="glossary-item"><h3>AST Grep</h3><p>코드를 단순 문자열이 아니라 문법 구조로 찾아 바꾸는 도구입니다.</p></article><article class="glossary-item"><h3>Python REPL</h3><p>Python 명령을 한 줄씩 실행해 결과를 바로 보는 실험용 실행 창입니다.</p></article><article class="glossary-item"><h3>리팩터링</h3><p>겉으로 보이는 기능은 유지하면서 내부 코드를 더 읽기 쉽고 안전하게 정리하는 일입니다.</p></article><article class="glossary-item"><h3>디버깅</h3><p>버그의 원인을 찾아 고치는 과정입니다.</p></article><article class="glossary-item"><h3>PRD</h3><p>Product Requirements Document의 줄임말입니다. 만들 기능의 목적, 요구사항, 성공 기준을 적은 문서입니다.</p></article><article class="glossary-item"><h3>API</h3><p>프로그램끼리 서로 기능을 호출하기 위해 정한 약속입니다.</p></article><article class="glossary-item"><h3>공개 API 파손</h3><p>다른 사람이 쓰던 호출 방식이 바뀌어 기존 사용자가 고장나는 상황입니다.</p></article><article class="glossary-item"><h3>동적 스케일링</h3><p>일하는 도중 작업자 수를 늘리거나 줄이는 기능입니다.</p></article><article class="glossary-item"><h3>scale_up / scale_down</h3><p>작업자를 늘리는 명령과 줄이는 명령입니다.</p></article><article class="glossary-item"><h3>잠금 / lock</h3><p>동시에 같은 작업을 건드리지 못하게 막는 안전 장치입니다.</p></article><article class="glossary-item"><h3>메일박스</h3><p>팀 작업자와 리더가 메시지를 주고받는 내부 전달함입니다.</p></article><article class="glossary-item"><h3>상태 루트</h3><p>팀 상태 파일을 어디에 저장하고 읽을지 정하는 기준 폴더입니다.</p></article><article class="glossary-item"><h3>HUD</h3><p>화면 위에 현재 상태를 요약해 보여 주는 표시 영역입니다.</p></article><article class="glossary-item"><h3>OpenClaw</h3><p>알림과 후속 작업 트리거를 더 유연하게 다루기 위한 외부 연동 게이트웨이입니다.</p></article></div></section>
+<!-- Release Notes -->
+<section data-section="" id="release-notes">
+<h2><span class="anchor-link">#</span>릴리스 노트</h2>
+<div class="callout info">
+<div class="callout-title">빠른 요약</div>
+<p>최근 릴리스에는 Hermes MCP 조정, 표준 디자인 문서, 플러그인-mode 검색, 적대적 QA, 더 안전한 후크, tmux 소유권 확인 및 더 엄격한 Ultragoal 완료 증명이 추가되었습니다.</p>
+</div>
+<!-- 버전별 접을 수 있는 상세 정보가 포함된 모드 카드 -->
+<div class="mode-card tilt-3d-polish">
+<div class="mode-card__header tilt-3d-child">
+<span class="mode-card__keyword">v0.17.0</span>
+              Hermes MCP, 디자인 작업 흐름 및 플러그인 검색
+            </div>
+<details open="">
+<summary>v0.17.0의 변경 사항 보기</summary>
+<ul style="list-style-type: disc;">
+<li><strong>Hermes MCP 다리:</strong> 원시 tmux 스크롤백 또는 비공개 런타임 상태를 노출하지 않고 제한된, opt-in 세션 상태, 감사된 팔로우-up 디스패치, 안전한 아티팩트 읽기, 로그 테일 및 최종 조정 보고서.</li>
+<li><strong>정식 <code>$design</code> 작업 흐름:</strong> <code>DESIGN.md</code> 내구성 있는 제품/UI 결정 표면이 되고 미러링된 기술 지침이 이전 프런트엔드 바로가기를 대체합니다.</li>
+<li><strong>플러그인-mode 발견:</strong> 로컬 Codex 플러그인 마켓플레이스 설정은 OMX 기술을 노출하고 플러그인 캐시 구체화를 확인하며 Hermes에 대한 플러그인-scoped MCP 메타데이터를 포함합니다.</li>
+<li><strong>적대적 UltraQA:</strong> <code>$ultraqa</code> 이제 적대적인 시나리오 모델링, 프롬프트 인젝션 시도, 중단/취소/재개 적용 범위, 오래된 상태 검사 및 증거 정리가 필요합니다.</li>
+<li><strong>런타임 소유권 강화:</strong> Windows 기본 후크, tmux 연속 소유권, 시작 셸 격리, 커밋된 프로젝트 메모리 로딩 및 Ultragoal 조정이 이제 현재 OMX 계약과 일치합니다.</li>
+</ul>
+<p style="margin-top: 0.75rem; color: var(--text-tertiary); font-size: 0.85rem;">마이너 릴리스. 2026년 5월 12일에 게시되었습니다.</p>
+</details>
+</div>
+<div class="mode-card tilt-3d-polish">
+<div class="mode-card__header tilt-3d-child">
+<span class="mode-card__keyword">v0.16.4</span>
+              승인된 핸드오프 및 완료 증명
+            </div>
+<details>
+<summary>v0.16.4의 변경 사항 보기</summary>
+<ul style="list-style-type: disc;">
+<li><strong>승인된 실행 핸드오프:</strong> 팀 DAG 시작에는 주변 부실 계획을 사용하는 대신 승인된 일치 PRD/test-spec 아티팩트가 필요합니다.</li>
+<li><strong>컨텍스트-pack 메타데이터:</strong> 제한된 컨텍스트 팩은 보다 안전한 연속성을 위해 라우팅, 증거 및 소유권 메타데이터를 보존합니다.</li>
+<li><strong>Hook/setup 소유권:</strong> Codex 후크 기능 플래그, 설정/notify 소유권, HUD/runtime 상태-root 가시성이 현재 런타임 권한에 맞춰 조정되었습니다.</li>
+<li><strong>Ralph 및 Ultragoal 증명:</strong> 완료 감사에는 지속 가능한 증거가 필요하며, 목표 완료 전에 Ultragoal 최종 정리/review 증거가 필수입니다.</li>
+</ul>
+<p style="margin-top: 0.75rem; color: var(--text-tertiary); font-size: 0.85rem;">패치 릴리스. 2026년 5월 11일에 게시되었습니다.</p>
+</details>
+</div>
+<div class="mode-card tilt-3d-polish">
+<div class="mode-card__header tilt-3d-child">
+<span class="mode-card__keyword">v0.14.2</span>
+              운영자 신뢰성 및 도구 체인 새로 고침
+            </div>
+<details>
+<summary>v0.14.2의 변경 사항 보기</summary>
+<ul style="list-style-type: disc;">
+<li><strong>더 안전하게 <code>omx question</code> 표현:</strong> 보이지 않는 분리된 렌더러를 생성하는 대신 명확한 연산자-facing 오류로 인해 연결된 tmux 창 외부에서 닫혀 실패합니다.</li>
+<li><strong>중복 MCP 정리:</strong> 안전한 트래픽 이후 유휴 기간 이후 이전의 동일 부모 stdio 중복 형제 자가 종료를 사용하여 오래된 MCP 서버 누적을 줄입니다.</li>
+<li><strong>Deep-interview 상태 강화:</strong> Session-scoped 모드를 지우면 비활성 삭제 표시가 남으므로 레거시 루트 대체가 모드를 즉시 다시 활성화하지 않습니다. 실패한 질문은 명확한 보류 의무를 시작합니다.</li>
+<li><strong>한국어 IME 드리프트 라우팅:</strong> 다음과 같이 입력한 프롬프트 <code>ㅕㅣㅈ</code> 한국어 2-set 키보드에서는 <code>ulw</code> 활성화 전의 ultrawork 속기.</li>
+<li><strong>공유 tmux 제출 의미:</strong> Question-answer 주입은 이제 동일한 경로를 통해 전달됩니다. <code>buildSendPaneArgvs</code> 회신-listener 창 삽입 경로입니다.</li>
+<li><strong>배경 질문 안내:</strong> 이제 에이전트가 명시적으로 백그라운드를 기다립니다. <code>omx question</code> 계속하기 전에 터미널을 종료하고 JSON 답변을 읽어보세요.</li>
+<li><strong>툴링 새로 고침:</strong> TypeScript로 업그레이드됨 <code>6.0.3</code>, Biome 잠금 파일 메타데이터가 다음으로 새로 고쳐졌습니다. <code>2.4.12</code>, 그리고 <code>tsconfig.json</code> TS 6 빌드 경로의 핀 Node 주변 유형입니다.</li>
+</ul>
+<p style="margin-top: 0.75rem; color: var(--text-tertiary); font-size: 0.85rem;">패치 릴리스. 2026년 4월 21일에 출시되었습니다.</p>
+</details>
+</div>
+<div class="mode-card tilt-3d-polish">
+<div class="mode-card__header tilt-3d-child">
+<span class="mode-card__keyword">v0.14.1</span>
+              대화형 표면 안정성 패치
+            </div>
+<details>
+<summary>v0.14.1의 변경 사항 보기</summary>
+<ul style="list-style-type: disc;">
+<li><strong>Deep-interview 게이팅 중지:</strong> 보류 중인 질문 의무는 이제 모드가 자체적으로 비활성 상태로 표시된 후에도 중지를 올바르게 차단합니다.</li>
+<li><strong>질문 창 복원력:</strong> 비-POSIX 셸, 누락된 창 및 분리된-session 시작 실패가 이제 죽은 질문 UI를 남기는 대신 실패 처리됩니다.</li>
+<li><strong>새로 고침 복구 설정:</strong> 명백한 <code>omx update</code> 설치된 버전이 이미 최신 버전인 경우에도 설치 상태를 새로 고칠 수 있습니다. 권고 업데이트-state 쓰기 실패로 인해 더 이상 새로 고침 경로가 차단되지 않습니다.</li>
+<li><strong>수명주기 정규화:</strong> 터미널 수명주기 도우미는 이제 병렬 구현 대신 공유 런타임 run-outcome 계약을 재사용합니다.</li>
+<li><strong>안내 폴란드어:</strong> Code-review 스킬에는 보다 포괄적인 양방향 관점 검토 자세가 필요합니다. 경량 폴백 레인은 의도적으로 가늘게 유지됩니다.</li>
+</ul>
+<p style="margin-top: 0.75rem; color: var(--text-tertiary); font-size: 0.85rem;">패치 릴리스. 2026년 4월 21일에 출시되었습니다.</p>
+</details>
+</div>
+<div class="mode-card tilt-3d-polish">
+<div class="mode-card__header tilt-3d-child">
+<span class="mode-card__keyword">v0.14.0</span>
+              보안, Stop-Hook 및 Ralph 안전 패치
+            </div>
+<details>
+<summary>v0.14.0의 변경 사항 보기</summary>
+<ul style="list-style-type: disc;">
+<li><strong>보안 강화:</strong> 식별자 경로 탐색이 닫혀 있고, HUD git 헬퍼가 셸/정규식 메타 문자를 거부하며, 응답 승인으로 여러 부분으로 된 비밀값이 수정됩니다. <code>npm audit fix</code> 전이적 CVE를 패치합니다.</li>
+<li><strong>지속적인 중지-hook 정확성:</strong> 기본 중지 auto-nudge는 OMX 런타임에 의해 제어되지 않고 실행되는 반면 활성 OMX 워크플로는 실제로 완료될 때까지 계속 중지를 차단합니다.</li>
+<li><strong>Ralph 활성화 및 복구:</strong> 대화형 Ralph에서는 더 이상 시드 워크플로 상태가 언급되지 않으며 Ralph는 연속 복구 전반에 걸쳐 눈에 띄게 활성 상태를 유지하며 steer-lock 재시도는 제한됩니다.</li>
+<li><strong>재진입 가드 살펴보기:</strong> <code>omx explore</code> 셸 시작 재진입에서 실패하고 허용 목록 래퍼는 더 이상 자체 해석.가 아닙니다.</li>
+<li><strong>작업자 런타임 ID:</strong> 작업자 런타임 역할 ID는 검토 가능한 하나의 확인 경로를 통해 시작 및 확장을 통해 유지됩니다.</li>
+<li><strong>후크 및 상태:</strong> 포크된 알림 훅 라우팅, 감시자 PID 활성 확인, tmux 확장 키의 오래된 잠금 복구, MCP 중복 형제 정리, <code>.omx</code> 기반 프로젝트 루트 검색 및 자동 업데이트. 중 AGENTS.md 보존</li>
+<li><strong>스킬 UX:</strong> 분석 스킬은 읽기-only 조사면으로 부활하고, OMX-installed 스킬은 에 표시됩니다. <code>/skills</code> 이름을 바꾸지 않고 Shift+Enter tmux 분류 문서가 추가되었습니다.</li>
+</ul>
+<p style="margin-top: 0.75rem; color: var(--text-tertiary); font-size: 0.85rem;">패치 릴리스. 2026년 4월 18일에 출시되었습니다.</p>
+</details>
+</div>
+<div class="mode-card tilt-3d-polish">
+<div class="mode-card__header tilt-3d-child">
+<span class="mode-card__keyword">v0.13.1</span>
+              팀 상태 및 작업자 PID 패치
+            </div>
+<details>
+<summary>v0.13.1의 변경 사항 보기</summary>
+<ul style="list-style-type: disc;">
+<li><strong>팀 상태 JSON:</strong> 리더 사서함 정리는 더 이상 전달된 중복 -message 브리지 호출을 재생하지 않습니다. <code>omx team status --json</code> 구문 분석 가능.</li>
+<li><strong>작업자 PID 메타데이터:</strong> 이제 대화형 팀 작업자는 확인된 창 ID에서 PID를 기록하고 이를 config/identity 상태로 유지합니다.</li>
+<li><strong>릴리스 정렬:</strong> Node, Cargo, 변경 로그 및 릴리스 자료 전반에 걸쳐 동기화된 메타데이터입니다.</li>
+</ul>
+<p style="margin-top: 0.75rem; color: var(--text-tertiary); font-size: 0.85rem;">패치 릴리스. 2026년 4월 7일에 출시되었습니다.</p>
+</details>
+</div>
+<div class="mode-card tilt-3d-polish">
+<div class="mode-card__header tilt-3d-child">
+<span class="mode-card__keyword">v0.12.0</span>
+              네이티브 후크, Bash 지침 및 런타임 강화
+            </div>
+<details>
+<summary>v0.12.0의 변경 사항 보기</summary>
+<ul style="list-style-type: disc;">
+<li><strong>네이티브 Codex 후크:</strong> 후크 소유권은 이제 다음을 통해 비-team OMX 세션에 대한 repo/runtime 계약에 있습니다. <code>.codex/hooks.json</code>.</li>
+<li><strong>Bash 지침:</strong> 먼저-party <code>PreToolUse</code>/<code>PostToolUse</code> 파괴적인 -command 경고 및 오류 지침에 대한 지침이 제공되고 문서화되었습니다.</li>
+<li><strong>팀 런타임:</strong> 배달, 사서함 처리, Pane-status 가시성 및 next-action 조정이 더욱 강력해졌습니다.</li>
+<li><strong>Windows/tmux:</strong> 발사 안정성과 명령 해상도가 향상되었습니다. 분리된 출시 및 PowerShell 해상도가 강화되었습니다.</li>
+<li><strong>품질-first 기본값:</strong> 프롬프트 및 AGENTS 기본값은 품질-first, 증거-backed 실행을 강조합니다.</li>
+<li><strong>문서 재구성:</strong> 번역된 README/docs 담보가 다음으로 확장 및 재구성되었습니다. <code>docs/readme/</code> (15개 언어).</li>
+</ul>
+<p style="margin-top: 0.75rem; color: var(--text-tertiary); font-size: 0.85rem;">변경된 파일 185개, 비-merge 커밋 65개, 병합 커밋 26개. 2026년 4월 6일에 출시되었습니다.</p>
+</details>
+</div>
+<div class="mode-card tilt-3d-polish">
+<div class="mode-card__header tilt-3d-child">
+<span class="mode-card__keyword">v0.11.13</span>
+              팀 전달 무결성 및 Windows 안정성
+            </div>
+<details>
+<summary>v0.11.13의 변경 사항 보기</summary>
+<ul style="list-style-type: disc;">
+<li><strong>사서함 배달:</strong> 팀 리더 사서함 배달은 런타임/CLI 연결 전체에서 안정적인 상태를 유지합니다.</li>
+<li><strong>리더는 다음과 같이 넛지합니다.</strong> 바쁜 Codex 리더 창은 이제 자동 지연 대신 대기 중인 넛지를 수신할 수 있습니다.</li>
+<li><strong>Windows/worktree:</strong> HUD 타겟팅 및 리더 활동 폴링은 분리된/worktree 출시에서도 안정적으로 유지됩니다.</li>
+<li><strong>Deep-interview 잠금:</strong> 폴백 넛지는 활성 deep-interview 입력 잠금을 따릅니다.</li>
+<li><strong>정리:</strong> 제거는 레거시 기술에 대해 경고합니다. 종료 정리는 분리된 작업자 자손을 보다 안전하게 수확합니다.</li>
+</ul>
+<p style="margin-top: 0.75rem; color: var(--text-tertiary); font-size: 0.85rem;">패치 릴리스. 2026년 4월 4일에 출시되었습니다.</p>
+</details>
+</div>
+<div class="mode-card tilt-3d-polish">
+<div class="mode-card__header tilt-3d-child">
+<span class="mode-card__keyword">v0.11.12</span>
+              자율 연구 및 Worktree 병합 추적
+            </div>
+<details>
+<summary>v0.11.12의 변경 사항 보기</summary>
+<ul style="list-style-type: disc;">
+<li><strong>자동 조사:</strong> 새로운 <code>omx autoresearch</code> 모드는 연구 목표가 만족되면 주제와 self-terminates를 반복적으로 탐색합니다.</li>
+<li><strong>실행 래퍼:</strong> <code>omx exec</code> 전체 에이전트 컨텍스트를 사용하여 OMX 오케스트레이션 계층을 통해 명령을 실행합니다.</li>
+<li><strong>팀 worktrees:</strong> 이제 팀 작업자는 격리된 기본적으로 git worktree을 사용하여 충돌 없는 병렬 실행을 활성화합니다.</li>
+<li><strong>Deep-interview 의도-first:</strong> 의도 분류는 Socratic 인터뷰 루프 이전에 사전에 발생합니다.</li>
+<li><strong>증분 병합 추적:</strong> 증분 diff-based 병합 인식을 통해 worktree 전체에서 더욱 스마트한 충돌 감지가 가능합니다.</li>
+</ul>
+<p style="margin-top: 0.75rem; color: var(--text-tertiary); font-size: 0.85rem;">54개 커밋, 26개 PR, 105개 파일이 변경되었습니다. 2026년 3월 15일에 출시되었습니다.</p>
+</details>
+</div>
+<div class="mode-card tilt-3d-polish">
+<div class="mode-card__header tilt-3d-child">
+<span class="mode-card__keyword">v0.10.0</span>
+              자율 연구 및 팀 워크트리
+            </div>
+<details open="">
+<summary>v0.10.0의 변경 사항 보기</summary>
+<ul style="list-style-type: disc;">
+<li><strong>자동 조사:</strong> 새로운 <code>omx autoresearch</code> 모드는 연구 목표가 만족되면 주제와 self-terminates를 반복적으로 탐색합니다.</li>
+<li><strong>실행 래퍼:</strong> <code>omx exec</code> 전체 에이전트 컨텍스트 및 조정을 통해 OMX 오케스트레이션 계층을 통해 명령을 실행합니다.</li>
+<li><strong>팀 worktrees:</strong> 이제 팀 작업자는 격리된 기본적으로 git worktree을 사용하여 충돌 없는 병렬 실행을 활성화합니다.</li>
+<li><strong>Deep-interview 의도-first:</strong> 의도 분류는 Socratic 인터뷰 루프 이전에 발생하여 질문 타겟팅을 개선합니다.</li>
+<li><strong>증분 병합 추적:</strong> 증분 diff-based 병합 인식을 통해 worktree 전체에서 더욱 스마트한 충돌 감지가 가능합니다.</li>
+</ul>
+<p style="margin-top: 0.75rem; color: var(--text-tertiary); font-size: 0.85rem;">54개 커밋, 26개 PR, 105개 파일 변경, +7581/-388줄. 2026년 3월 15일에 출시되었습니다.</p>
+</details>
+</div>
+<div class="mode-card tilt-3d-polish">
+<div class="mode-card__header tilt-3d-child">
+<span class="mode-card__keyword">v0.9.0</span>
+              Spark 이니셔티브
+            </div>
+<details>
+<summary>v0.9.0의 변경 사항 보기</summary>
+<ul style="list-style-type: disc;">
+<li><strong>CLI:</strong> 추가됨 <code>omx explore</code> 제한된 기본 하네스 및 리포지토리-safe 허용 목록이 있는 기본 읽기 전용 탐색 진입점으로 사용됩니다.</li>
+<li><strong>검사:</strong> 추가됨 <code>omx sparkshell</code> 셸 네이티브 명령 실행, 적응형 요약 및 tmux 창 캡처용입니다.</li>
+<li><strong>복구:</strong> 추가됨 <code>omx resume</code> 이전 대화형 Codex 세션을 복원하기 위한 직접 터미널 명령으로 사용됩니다.</li>
+<li><strong>출시:</strong> 태그가 지정된 릴리스는 이제 다음을 위한 기본 아카이브를 제공합니다. <code>omx-explore-harness</code> 그리고 <code>omx-sparkshell</code> 매니페스트-based 수화로.</li>
+<li><strong>확인:</strong> 이제 릴리스 레인이 커버됩니다. <code>npm run build:full</code>, <code>npm run test:explore</code>, <code>npm run test:sparkshell</code>, 그리고 Packed-install 연기 점검.</li>
+</ul>
+</details>
+</div>
+<div class="mode-card tilt-3d-polish">
+<div class="mode-card__header tilt-3d-child">
+<span class="mode-card__keyword">v0.8.1</span>
+              팀 CLI 상호 운용성 API
+            </div>
+<details>
+<summary>v0.8.1의 변경 사항 보기</summary>
+<ul style="list-style-type: disc;">
+<li><strong>API:</strong> 전문 작업자 조정을 위해 팀 CLI 상호 운용성 API를 추가했습니다.</li>
+<li><strong>구성:</strong> 통합 <code>configure-notifications</code> 기술.</li>
+</ul>
+</details>
+</div>
+<div class="mode-card tilt-3d-polish">
+<div class="mode-card__header tilt-3d-child">
+<span class="mode-card__keyword">v0.8.0</span>
+              모델 질문 및 소크라테스 인터뷰
+            </div>
+<details>
+<summary>v0.8.0의 변경 사항 보기</summary>
+<ul style="list-style-type: disc;">
+<li><strong>CLI:</strong> 추가됨 <code>omx ask</code> 직접 clude/gemini 쿼리를 위한 명령입니다.</li>
+<li><strong>작업 흐름:</strong> 추가됨 <code>deep-interview</code> 소크라테스식 모호성 게이팅을 사용한 작업 흐름.</li>
+<li><strong>기술:</strong> 추가됨 <code>web-clone</code> 기술.</li>
+</ul>
+</details>
+</div>
+<div class="mode-card tilt-3d-polish">
+<div class="mode-card__header tilt-3d-child">
+<span class="mode-card__keyword">v0.7.6</span>
+              핫픽스
+            </div>
+<details>
+<summary>v0.7.6의 변경 사항 보기</summary>
+<ul style="list-style-type: disc;">
+<li><strong>수정:</strong> 0.7.5 릴리스 이후의 핫픽스입니다.</li>
+</ul>
+</details>
+</div>
+<div class="mode-card tilt-3d-polish">
+<div class="mode-card__header tilt-3d-child">
+<span class="mode-card__keyword">v0.7.5</span>
+              Ralph 정리 및 작업자 라우팅
+            </div>
+<details>
+<summary>v0.7.5의 변경 사항 보기</summary>
+<ul style="list-style-type: disc;">
+<li><strong>리팩터링:</strong> 26개 커밋 포함 <code>ralph auto-run</code> 청소.</li>
+<li><strong>모드:</strong> tmux 세션 모드가 추가되었습니다.</li>
+<li><strong>라우팅:</strong> 작업자별 역할 라우팅을 추가했습니다.</li>
+<li><strong>수정:</strong> OpenClaw 알림이 수정되었습니다.</li>
+</ul>
+</details>
+</div>
+<div class="mode-card tilt-3d-polish">
+<div class="mode-card__header tilt-3d-child">
+<span class="mode-card__keyword">v0.7.3</span>
+              파이프라인 오케스트레이터
+            </div>
+<details>
+<summary>v0.7.3의 변경 사항 보기</summary>
+<ul style="list-style-type: disc;">
+<li><strong>스킬:</strong> 추가됨 <code>pipeline</code> 오케스트레이터.</li>
+<li><strong>CLI:</strong> 추가됨 <code>uninstall</code> 명령.</li>
+<li><strong>핵심:</strong> 팀 파견 강화.</li>
+</ul>
+</details>
+</div>
+<div class="mode-card tilt-3d-polish">
+<div class="mode-card__header tilt-3d-child">
+<span class="mode-card__keyword">v0.7.2</span>
+              팀 폐쇄 강제 플래그(핫픽스)
+            </div>
+<details>
+<summary>v0.7.2의 변경 사항 보기</summary>
+<ul style="list-style-type: disc;">
+<li><strong>수정:</strong> 팀 폐쇄 <code>--force</code> 이제 CLI 인수에서 올바르게 구문 분석됩니다.</li>
+<li><strong>감사:</strong> 다음을 추가했습니다. <code>shutdown_gate_forced</code> 감사 이벤트.</li>
+</ul>
+</details>
+</div>
+<div class="mode-card tilt-3d-polish">
+<div class="mode-card__header tilt-3d-child">
+<span class="mode-card__keyword">v0.7.0</span>
+              주요 릴리스(153개 파일 변경됨)
+            </div>
+<details>
+<summary>v0.7.0의 변경 사항 보기</summary>
+<ul style="list-style-type: disc;">
+<li><strong>스케일링:</strong> 동적 팀 작업자 확장 추가(1단계 매뉴얼 <code>scale_up</code> 그리고 <code>scale_down</code>).</li>
+<li><strong>계획:</strong> 합의 계획을 위한 RALPLAN-DR 구조적 심의를 추가했습니다.</li>
+<li><strong>범위:</strong> pre-execution 안내를 위한 task-size 감지기를 추가했습니다.</li>
+<li><strong>트리거:</strong> 31개의 키워드 트리거가 포함된 키워드 트리거 레지스트리를 추가했습니다.</li>
+<li><strong>알림:</strong> Slack, Discord 및 Telegram 전반에 걸쳐 알림을 정밀검사했습니다.</li>
+<li><strong>통합:</strong> OpenClaw 게이트웨이 통합이 추가되었습니다.</li>
+<li><strong>CLI:</strong> star-prompt 명령을 추가했습니다.</li>
+<li><strong>설정:</strong> 3개 범위에서 2개 범위(사용자 및 프로젝트)로 설정이 단순화되었습니다.</li>
+<li><strong>MCP:</strong> MCP 부트스트랩 모듈을 추가했습니다.</li>
+<li><strong>HUD:</strong> 시계 렌더링 직렬화, 할당량 렌더링 및 세션 기간 개선이 추가되었습니다.</li>
+<li><strong>테스트:</strong> 308개 제품군에서 1,472개의 테스트에 도달했습니다.</li>
+<li><strong>보안:</strong> 강화된 MCP <code>workingDirectory</code>, 경로 통과를 방지하고 HUD 탈출 주입을 차단했습니다.</li>
+</ul>
+</details>
+</div>
+<div class="mode-card tilt-3d-polish">
+<div class="mode-card__header tilt-3d-child">
+<span class="mode-card__keyword">v0.6.x</span>
+              혼합 팀 작업자 및 신뢰성
+            </div>
+<details>
+<summary>v0.6.x의 변경 사항 보기</summary>
+<ul style="list-style-type: disc;">
+<li><strong>라우팅:</strong> 다음을 통해 혼합 팀 작업자 CLI 라우팅을 추가했습니다. <code>OMX_TEAM_WORKER_CLI_MAP</code> 작업자별 공급자 선택을 위한 것입니다.</li>
+<li><strong>대체:</strong> 리더 측 모든 작업자 유휴 넛지 폴백을 추가했습니다.</li>
+<li><strong>신뢰성:</strong> 적응형 트리거 제출 재시도 가드를 추가했습니다.</li>
+<li><strong>시작:</strong> 팀 Claude 작업자 시작 문제를 수정했습니다.</li>
+<li><strong>HUD:</strong> 분리된 실행을 위한 HUD 조정 후크를 추가했습니다.</li>
+</ul>
+</details>
+</div>
+<div class="mode-card tilt-3d-polish">
+<div class="mode-card__header tilt-3d-child">
+<span class="mode-card__keyword">v0.5.x</span>
+              작업 트리 및 Ralph CLI
+            </div>
+<details>
+<summary>v0.5.x의 변경 사항 보기</summary>
+<ul style="list-style-type: disc;">
+<li><strong>작업 트리:</strong> 팀 모드에 대한 기본 worktree 오케스트레이션을 추가했습니다.</li>
+<li><strong>상태:</strong> cross-worktree 팀 상태 해결이 추가되었습니다.</li>
+<li><strong>CLI:</strong> 다음을 추가했습니다. <code>omx ralph</code> 하위 명령.</li>
+<li><strong>지속성:</strong> 정식 지속성 마이그레이션을 통해 범위가 지정된 ralph 상태를 추가했습니다.</li>
+<li><strong>상호 운용성:</strong> MCP 상호 운용성을 위한 클레임-safe 팀 전환 도구를 추가했습니다.</li>
+<li><strong>알림:</strong> 알림에 대한 tmux 창 출력을 정리했습니다.</li>
+<li><strong>시작:</strong> 시작 코드베이스 맵 삽입 후크를 추가했습니다.</li>
+<li><strong>보안:</strong> 명령 주입 방지 및 경로 탐색 방지가 추가되었습니다.</li>
+</ul>
+</details>
+</div>
+<div class="mode-card tilt-3d-polish">
+<div class="mode-card__header tilt-3d-child">
+<span class="mode-card__keyword">v0.5.0</span>
+              카탈로그 통합
+            </div>
+<details>
+<summary>v0.5.0의 변경 사항 보기</summary>
+<ul style="list-style-type: disc;">
+<li><strong>설정:</strong> 범위-aware 설정(사용자 및 프로젝트)이 추가되었습니다.</li>
+<li><strong>라우팅:</strong> 다음을 통해 Spark 작업자 라우팅을 추가했습니다. <code>--spark</code> 그리고 <code>--madmax-spark</code>.</li>
+<li><strong>정리:</strong> 더 이상 사용되지 않는 프롬프트와 9개 기술을 제거하여 카탈로그를 통합했습니다.</li>
+<li><strong>로깅:</strong> 알리미의 자세한 수준을 추가했습니다.</li>
+</ul>
+</details>
+</div>
+<div class="mode-card tilt-3d-polish">
+<div class="mode-card__header tilt-3d-child">
+<span class="mode-card__keyword">v0.4.x</span>
+              후크 확장성 및 Auto-nudge
+            </div>
+<details>
+<summary>v0.4.x의 변경 사항 보기</summary>
+<ul style="list-style-type: disc;">
+<li><strong>후크:</strong> CLI 통합을 통해 후크 확장성 런타임이 추가되었습니다.</li>
+<li><strong>탐지:</strong> auto-nudge 지연 감지 패턴이 확장되었습니다.</li>
+<li><strong>알림:</strong> 작업자-idle 집계 알림이 추가되었습니다.</li>
+<li><strong>티먹스:</strong> 팀 세션에 대해 자동 tmux 마우스 스크롤을 활성화했습니다.</li>
+<li><strong>대리인:</strong> OMX 에이전트를 Codex 기본 multi-agent 역할로 등록했습니다.</li>
+</ul>
+</details>
+</div>
+<div class="easy-note"><div class="easy-note__title">비개발자를 위한 쉬운 풀이</div><ul><li>릴리스 노트는 버전별 변경 기록입니다. 어떤 버전에서 어떤 기능이 생겼고 어떤 문제가 고쳐졌는지 시간순으로 확인하는 영역입니다.</li><li>“브리지”, “후크”, “런타임”, “상태” 같은 말은 모두 도구들이 안전하게 연결되고 현재 작업 정보를 잃지 않게 하는 장치를 뜻합니다.</li></ul><div class="section-term-list"><div class="section-term-list__title">이 섹션에서 나오는 용어 풀이</div><ul><li><strong>릴리스</strong> — 새 버전을 공개하는 일입니다.</li><li><strong>버전</strong> — 프로그램의 공개 번호입니다. v0.17.0처럼 적으며, 어떤 기능과 수정이 포함됐는지 구분합니다.</li><li><strong>Hermes MCP</strong> — OMX 상태, 산출물, 로그 일부, 후속 작업 지시를 안전한 범위 안에서 다른 도구가 볼 수 있게 해 주는 연결 통로입니다.</li><li><strong>브리지</strong> — 서로 다른 도구나 시스템을 이어 주는 다리 역할의 기능입니다.</li><li><strong>아티팩트</strong> — 작업 결과로 남는 파일, 보고서, 계획서, 로그 같은 산출물입니다.</li><li><strong>로그 tail</strong> — 로그 전체가 아니라 가장 최근 부분만 잘라 보는 것입니다.</li><li><strong>디스패치</strong> — 후속 작업이나 메시지를 알맞은 대상에게 보내는 동작입니다.</li><li><strong>플러그인</strong> — 기본 프로그램에 기능을 덧붙이는 확장 꾸러미입니다.</li><li><strong>캐시</strong> — 다시 쓰기 위해 임시로 저장해 둔 데이터입니다. 매번 새로 받지 않아 속도가 빨라집니다.</li><li><strong>메타데이터</strong> — 파일이나 기능 자체가 아니라 그것을 설명하는 부가 정보입니다. 예: 이름, 버전, 범위.</li><li><strong>적대적 테스트</strong> — 일부러 실패하기 쉬운 상황, 잘못된 입력, 공격적인 요청을 넣어 문제가 없는지 보는 테스트입니다.</li><li><strong>프롬프트 인젝션</strong> — 사용자 입력 안에 AI의 원래 지시를 무시하게 만들려는 문구를 넣는 공격 방식입니다.</li><li><strong>런타임</strong> — 프로그램이 실제로 실행되고 있는 시간과 그 실행 환경을 말합니다.</li><li><strong>후크</strong> — 특정 사건이 생겼을 때 자동으로 실행되는 연결 지점입니다. 예: 시작할 때, 멈출 때 알림 보내기.</li><li><strong>tmux</strong> — 터미널 하나 안에서 여러 작업 창을 나누고 유지하는 도구입니다. 여러 AI 작업자를 동시에 띄울 때 사용됩니다.</li><li><strong>Ultragoal</strong> — 큰 목표를 여러 단계로 나누고, 끝났다는 증거가 충분한지 확인하게 하는 목표 관리 흐름입니다.</li></ul></div></div></section>
+<section data-section="" id="v08-feature-guides">
+<h2><span class="anchor-link">#</span>기능 가이드</h2>
+<p>이러한 빠른 참조는 확장 및 합의 계획부터 기본 탐색 및 알림 통합에 이르기까지 v0.7부터 v0.9까지 추가된 주요 운영 표면을 다룹니다.</p>
+<article class="mode-card">
+<h3 id="feat-dynamic-scaling"><span class="anchor-link">#</span>동적 팀 작업자 확장</h3>
+<ul style="list-style-type: disc;">
+<li>1단계에서는 수동 지원 <code>scale_up</code> / <code>scale_down</code> 팀이 운영되는 동안.</li>
+<li>다음을 사용하여 확장 활성화 <code>OMX_TEAM_SCALING_ENABLED=1</code>.</li>
+<li><code>scale_down</code> 제거하기 전에 작업자를 안전하게 배출하고, 크기 조정 작업은 변경 사항이 겹치는 것을 방지하기 위해 lock-protected입니다.</li>
+</ul>
+</article>
+<article class="mode-card">
+<h3 id="feat-ralplan-dr"><span class="anchor-link">#</span>RALPLAN-DR 합의 계획</h3>
+<ul style="list-style-type: disc;">
+<li><code>$ralplan</code> 는 약칭이다 <code>$plan --consensus</code>.</li>
+<li>워크플로는 실행 전에 구조화된 RALPLAN-DR 요약과 함께 Planner → Architect → Critic을 사용합니다.</li>
+<li>기본 모드는 짧은 합의입니다. 사용하다 <code>--deliberate</code> 높은-risk 작업(보안, 마이그레이션, 파괴적인 작업, 공개 API 파손)용.</li>
+</ul>
+</article>
+<article class="mode-card">
+<h3 id="feat-openclaw"><span class="anchor-link">#</span>OpenClaw 통합</h3>
+<ul style="list-style-type: disc;">
+<li>OpenClaw는 명시적으로 구성할 수 있습니다. <code>notifications.openclaw</code> 후크 또는 일반 명령/webhook 별칭.</li>
+<li>세트 <code>OMX_OPENCLAW=1</code> 디스패치 경로를 활성화합니다. 명령 게이트웨이의 경우 다음도 설정합니다. <code>OMX_OPENCLAW_COMMAND=1</code>.</li>
+<li>일반적인 후크 이벤트: <code>session-start</code>, <code>session-idle</code>, <code>ask-user-question</code>, <code>session-stop</code>, 그리고 <code>session-end</code>.</li>
+</ul>
+<p>전체 가이드: <a href="https://github.com/Yeachan-Heo/oh-my-codex/blob/main/docs/openclaw-integration.md" rel="noopener noreferrer" target="_blank">OpenClaw / 일반 알림 게이트웨이 통합 가이드</a>.</p>
+</article>
+<article class="mode-card">
+<h3 id="feat-worktree-orchestration"><span class="anchor-link">#</span>작업트리 오케스트레이션(v0.10.0의 기본값)</h3>
+<div class="callout info">
+<div class="callout-title">v0.10.0의 Game-changer</div>
+<p>팀 작업자는 이제 격리된 git worktrees에서 실행됩니다. <strong>기본적으로</strong>. 는 <code>--worktree</code> 플래그는 더 이상 사용되지 않으며 no-op로 처리됩니다. worktrees는 항상 켜져 있습니다.</p>
+</div>
+<h4>작동 방식</h4>
+<ol style="list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1.5rem;">
+<li><strong>깨끗한 리더 작업 공간 필요</strong> — 리더는 먼저 헌신적인/stashed 작업 공간을 가지고 있어야 합니다. <code>omx team</code> 시작합니다.</li>
+<li><strong>자동 worktree 프로비저닝</strong> — 각 작업자는 분리된 worktree를 얻습니다. <code>.omx/team/&lt;name&gt;/worktrees/worker-N</code>.</li>
+<li><strong>근로자는 worktree에 전념합니다.</strong> — 격리된 분기는 작업자 간의 쓰기 충돌이 없음을 의미합니다.</li>
+<li><strong>리더는 점진적으로 병합됩니다.</strong> — 런타임은 작업자 커밋을 리더 브랜치에 지속적으로 통합합니다.</li>
+<li><strong>종료 정리</strong> — 프로비저닝된 worktrees는 팀 종료 시 롤백되고 분기가 삭제됩니다.</li>
+</ol>
+<h4>증분 병합 전략</h4>
+<p>통합 엔진은 작업자별로 최상의 전략을 자동으로 선택합니다.</p>
+<ul style="list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1.5rem;">
+<li><strong>병합(<code>--no-ff -X theirs</code>)</strong> — 작업자가 리더보다 확실히 앞서 있을 때. 빠르고 충돌-free.</li>
+<li><strong>체리-pick</strong> — 역사가 갈라졌을 때. 개별 작업자 커밋을 리더 브랜치로 선택합니다.</li>
+<li><strong>Cross-worker 리베이스</strong> — 작업자 간의 순차적 종속성을 위해. 한 작업자의 분기를 다른 작업자의 통합 상태로 리베이스합니다.</li>
+</ul>
+<p>충돌이 조기에 감지되어 기록됩니다. <code>.omx/state/team/&lt;team&gt;/integration-report.md</code> per-file 디테일로.</p>
+<h4>작업자 커밋 프로토콜</h4>
+<p>작업자는 완료를 보고하기 전에 다음을 커밋해야 합니다. <code>git add -A &amp;&amp; git commit -m "task: &lt;subject&gt;"</code>. 작업자가 잊어버린 경우를 대비해 런타임 auto-commits를 사용하지만, 더 깔끔한 기록을 위해 명시적인 커밋을 선호합니다.</p>
+<div class="code-block-wrapper">
+<div class="code-block-header"><span class="code-lang">BASH</span></div>
+<pre><code># Worktrees are automatic — no flags needed
+omx team 3:executor "implement feature X"
+
+# Check worker worktree status
+omx team status &lt;team-name&gt;
+# Output includes: worktree_path, worktree_branch, worktree_detached per worker
+
+# Mixed providers — all get worktrees
+OMX_TEAM_WORKER_CLI_MAP=codex,claude,gemini omx team 3:executor "full-stack work"</code></pre>
+</div>
+<h4>Cross-Worktree 상태 확인</h4>
+<ul style="list-style-type: disc; padding-left: 1.5rem;">
+<li>팀 상태 루트는 리더 cwd(<code>&lt;leader-cwd&gt;/.omx/state</code>)를 통해 모든 worktrees에서 공유됩니다. <code>OMX_TEAM_STATE_ROOT</code>.</li>
+<li>파견, 작업 청구, 사서함 배달 및 수명 주기 업데이트는 모든 작업자 worktrees에서 일관성을 유지합니다.</li>
+<li>작업자 신원 파일 추적 <code>worktree_path</code>, <code>worktree_branch</code>, <code>worktree_detached</code>, 그리고 <code>worktree_created</code> 완전한 관찰이 가능하도록 합니다.</li>
+</ul>
+</article>
+<article class="mode-card tilt-3d-polish">
+<h3 class="tilt-3d-child" id="feat-gemini-teams"><span class="anchor-link">#</span>Gemini-Powered 팀</h3>
+<ul style="list-style-type: disc;">
+<li>전체 지원 <strong>Gemini CLI</strong> OMX 팀 모드의 작업자.</li>
+<li>복잡한 아키텍처 계획 및 코드베이스-wide 리팩터링을 위해 Gemini의 대규모 컨텍스트 창과 추론 기능을 활용하세요.</li>
+<li>혼합 공급자 팀(Codex + Claude + Gemini)은 최고의 "최적 조합" 오케스트레이션을 가능하게 합니다.</li>
+<li>다음으로 구성 <code>OMX_TEAM_WORKER_CLI_MAP=codex,claude,gemini</code>.</li>
+</ul>
+<h4>런타임 예</h4>
+<p>전문적인 추론 능력을 활용하려면 Gemini로 혼합 팀을 운영하세요.</p>
+<div class="code-block-wrapper">
+<div class="code-block-header"><span class="code-lang">BASH</span></div>
+<pre><code># 1. Start a mixed provider team
+export OMX_TEAM_WORKER_CLI_MAP=codex,claude,gemini
+omx team 3:executor "full-stack implementation"
+
+# 2. Force all workers to Gemini
+export OMX_TEAM_WORKER_CLI=gemini
+omx team 2:architect "large-scale architectural review"
+
+# 3. Pass explicit Gemini models
+export OMX_TEAM_WORKER_LAUNCH_ARGS="--model gemini-2.0-flash-exp"
+omx team 1:executor "experimental feature"</code></pre>
+</div>
+<p><strong>Gemini 작업자 행동 참고 사항:</strong></p>
+<ul>
+<li><strong>프롬프트-interactive 시작:</strong> Gemini 작업자는 다음을 사용하여 초기 프롬프트로 자동으로 시드됩니다. <code>--approval-mode yolo -i "..."</code> 안정적인 tmux Bring-up. 보장</li>
+<li><strong>모델 필터링:</strong> Non-Gemini 기본 모델(예: Spark)은 Gemini 작업자를 시작할 때 자동으로 필터링되어 공급자/model 불일치를 방지합니다.</li>
+<li><strong>상황적 이점:</strong> 심층적인 코드베이스 컨텍스트 또는 long-form 아키텍처 합성이 필요한 작업에는 Gemini 워커를 사용하세요.</li>
+</ul>
+</article>
+<div class="easy-note"><div class="easy-note__title">비개발자를 위한 쉬운 풀이</div><ul><li>기능 가이드는 운영자가 자주 쓰는 큰 기능을 빠르게 이해하도록 모아 둔 안내입니다.</li><li>동적 스케일링은 작업자 수 조절, RALPLAN-DR은 여러 관점의 계획 검토, OpenClaw는 알림/후속 작업 연결, worktree는 안전한 병렬 작업 공간을 뜻합니다.</li></ul><div class="section-term-list"><div class="section-term-list__title">이 섹션에서 나오는 용어 풀이</div><ul><li><strong>동적 스케일링</strong> — 일하는 도중 작업자 수를 늘리거나 줄이는 기능입니다.</li><li><strong>scale_up / scale_down</strong> — 작업자를 늘리는 명령과 줄이는 명령입니다.</li><li><strong>잠금 / lock</strong> — 동시에 같은 작업을 건드리지 못하게 막는 안전 장치입니다.</li><li><strong>OpenClaw</strong> — 알림과 후속 작업 트리거를 더 유연하게 다루기 위한 외부 연동 게이트웨이입니다.</li><li><strong>알림 이벤트</strong> — 세션 시작, 멈춤, 종료, 사용자 질문처럼 알림을 보낼 계기가 되는 사건입니다.</li><li><strong>worktree</strong> — 하나의 Git 저장소에서 작업 공간을 여러 개로 나눈 것입니다. 여러 사람이 동시에 고쳐도 서로 파일을 덮어쓰지 않게 돕습니다.</li><li><strong>Git</strong> — 파일 변경 이력을 기록하고 되돌릴 수 있게 하는 버전 관리 도구입니다.</li><li><strong>커밋</strong> — Git에 “여기까지의 변경을 하나의 기록으로 저장한다”라고 남기는 단위입니다.</li><li><strong>머지 / merge</strong> — 서로 다른 브랜치나 작업 결과를 하나로 합치는 일입니다.</li><li><strong>체리픽 / cherry-pick</strong> — 다른 브랜치의 특정 커밋 하나만 골라 가져오는 일입니다.</li><li><strong>리베이스 / rebase</strong> — 내 작업의 출발점을 최신 기준 위로 다시 얹어 정리하는 Git 작업입니다.</li><li><strong>충돌 / conflict</strong> — 두 작업자가 같은 부분을 다르게 고쳐 Git이 자동으로 합치지 못하는 상태입니다.</li></ul></div></div></section>
+<!-- Installation -->
+<section data-section="" id="installation">
+<h2><span class="anchor-link">#</span>설치</h2>
+<div class="code-block-wrapper">
+<div class="code-block-header"><span class="code-lang">BASH</span></div>
+<pre><code># 1. Install globally
+npm install -g oh-my-codex
+
+# 2. Run setup
+omx setup
+
+# 3. Verify installation
+omx doctor</code></pre>
+</div>
+<div class="easy-note"><div class="easy-note__title">비개발자를 위한 쉬운 풀이</div><ul><li>설치는 OMX를 컴퓨터에 등록하는 단계입니다. 설치 후 setup으로 설정을 만들고 doctor로 점검합니다.</li><li>터미널 명령이 낯설다면 한 줄씩 복사해 실행하고, 오류가 나면 다음 단계로 넘어가지 말고 메시지를 확인하면 됩니다.</li></ul><div class="section-term-list"><div class="section-term-list__title">이 섹션에서 나오는 용어 풀이</div><ul><li><strong>설치</strong> — 내 컴퓨터에서 프로그램을 사용할 수 있도록 파일을 내려받고 등록하는 과정입니다.</li><li><strong>npm</strong> — Node.js 생태계의 프로그램 설치 도구입니다. 스마트폰 앱스토어처럼 자바스크립트 도구를 내려받는 창구입니다.</li><li><strong>setup</strong> — OMX가 필요한 설정 파일, 역할 프롬프트, 스킬, 연결 도구를 준비하는 초기 설정 단계입니다.</li><li><strong>doctor</strong> — 설치가 제대로 되었는지 건강검진처럼 점검하는 명령입니다.</li><li><strong>터미널</strong> — 명령어를 글자로 입력하는 검은 화면 또는 콘솔 창입니다.</li><li><strong>명령어</strong> — 컴퓨터에게 시키는 짧은 문장입니다. 예: npm install -g oh-my-codex 는 설치하라는 뜻입니다.</li></ul></div></div></section>
+<!-- Quick Start -->
+<section data-section="" id="quick-start">
+<h2><span class="anchor-link">#</span>빠른 시작</h2>
+<p>OMX는 "마법 키워드"를 사용하고 <code>$skill</code> 의도를 감지하는 명령입니다. 원하는 것을 설명하면 됩니다.</p>
+<div class="code-block-wrapper">
+<div class="code-block-header"><span class="code-lang">EXAMPLES</span></div>
+<pre><code># Inside Codex CLI:
+/prompts:architect "analyze current auth boundaries"
+/prompts:executor "implement input validation in login"
+$plan "ship OAuth callback safely"
+$team 3:executor "fix all TypeScript errors"
+
+# From terminal:
+omx team 4:executor "parallelize a multi-module refactor"
+omx team status &lt;team-name&gt;
+omx team shutdown &lt;team-name&gt;</code></pre>
+</div>
+<ul class="quick-start-steps">
+<li>
+<div class="qs-content">
+<h4>자율 빌딩</h4>
+<p><code>"autopilot build a React dashboard"</code> — 아이디어부터 코드까지 완전 자율 실행.</p>
+</div>
+</li>
+<li>
+<div class="qs-content">
+<h4>리팩토링</h4>
+<p><code>"ralph refactor the API"</code> — 깨끗하다는 것이 확인될 때까지 지속됩니다("돌은 절대 멈추지 않습니다").</p>
+</div>
+</li>
+<li>
+<div class="qs-content">
+<h4>병렬 작업</h4>
+<p><code>"ulw fix all errors"</code> — 속도를 위해 여러 에이전트를 병렬로 실행합니다.</p>
+</div>
+</li>
+<li>
+<div class="qs-content">
+<h4>tmux 팀</h4>
+<p><code>"team 5:executor refactor backend"</code> — 리더 창에서 조정된 5명의 에이전트로 구성된 팀을 생성합니다.</p>
+</div>
+</li>
+<li>
+<div class="qs-content">
+<h4>기획</h4>
+<p><code>"plan the auth system"</code> — 대화형 계획 인터뷰를 시작합니다.</p>
+</div>
+</li>
+</ul>
+<div class="easy-note"><div class="easy-note__title">비개발자를 위한 쉬운 풀이</div><ul><li>빠른 시작은 “어떤 말을 입력하면 어떤 작업 흐름이 시작되는지”를 보여 줍니다.</li><li>Magic Keyword는 사용자가 “plan”, “team”, “ralph”처럼 특정 단어를 쓰면 OMX가 의도를 알아채고 알맞은 절차를 켜는 기능입니다.</li></ul><div class="section-term-list"><div class="section-term-list__title">이 섹션에서 나오는 용어 풀이</div><ul><li><strong>스킬</strong> — 자주 쓰는 작업 절차를 묶어 둔 실행 방법입니다. 예: 계획 세우기, 코드 리뷰, 알림 설정.</li><li><strong>프롬프트</strong> — AI에게 역할, 규칙, 해야 할 일을 알려 주는 지시문입니다.</li><li><strong>에이전트</strong> — 특정 역할을 맡은 AI 작업자입니다. 예를 들어 설계 담당, 구현 담당, 검토 담당처럼 역할이 나뉩니다.</li><li><strong>팀 모드</strong> — 여러 AI 작업자 창을 띄워 한 목표를 나누어 처리하게 하는 OMX 실행 방식입니다.</li><li><strong>tmux</strong> — 터미널 하나 안에서 여러 작업 창을 나누고 유지하는 도구입니다. 여러 AI 작업자를 동시에 띄울 때 사용됩니다.</li></ul></div></div></section>
+<!-- Architecture -->
+<section data-section="" id="philosophy">
+<h2><span class="anchor-link">#</span>왜 OMX인가?</h2>
+<p>Codex CLI는 직접적인 작업에 강력합니다. OMX는 대규모 작업을 위한 구조를 추가합니다.</p>
+<ul>
+<li><strong>분해 및 단계적 실행:</strong> 다음을 통해 관리됨 <code>team-plan → team-prd → team-exec → team-verify → team-fix</code> 파이프라인.</li>
+<li><strong>영구 모드 수명 주기 상태:</strong> 저장 위치 <code>.omx/state/</code> 재개 가능한 실행을 위해.</li>
+<li><strong>메모리 + 메모장 표면:</strong> long-running 세션을 위한 전용 작업 공간입니다.</li>
+<li><strong>운영 통제:</strong> Fine-grained는 실행, 확인, 취소를 제어합니다.</li>
+</ul>
+<h2><span class="anchor-link">#</span>지휘자 철학</h2>
+<p>OMX의 핵심 원리는 다음과 같습니다. <strong>당신은 공연자가 아니라 지휘자입니다.</strong></p>
+<div class="callout warning">
+<div class="callout-title">황금률</div>
+<p>NEVER는 코드를 직접 변경합니다. ALWAYS는 전문 에이전트에게 위임합니다. 귀하의 역할은 안내하고, 검토하고, 조정하는 것입니다.</p>
+</div>
+<p>상담원에게는 특별한 역할이 있습니다. 는 <strong>건축가</strong> 큰 그림을 본다, <strong>집행자</strong> 코드를 작성하고, <strong>검증인</strong> 그것이 효과가 있음을 증명합니다. 이 구분을 존중하면 더 높은 품질의 출력이 보장됩니다.</p>
+<div class="easy-note"><div class="easy-note__title">비개발자를 위한 쉬운 풀이</div><ul><li>OMX의 철학은 사용자가 모든 일을 직접 하기보다, 목적을 정하고 AI 작업자들이 역할별로 일하도록 지휘하는 것입니다.</li><li>비개발자 관점에서는 “한 명의 만능 직원”이 아니라 “기획자, 개발자, 검수자가 있는 작은 팀”을 운영한다고 이해하면 됩니다.</li></ul><div class="section-term-list"><div class="section-term-list__title">이 섹션에서 나오는 용어 풀이</div><ul><li><strong>Conductor / 지휘자</strong> — 직접 모든 코드를 쓰기보다, 적절한 AI 작업자에게 맡기고 결과를 검토하는 사람 또는 리더 역할을 뜻합니다.</li><li><strong>위임</strong> — 작업을 직접 하지 않고 알맞은 역할의 에이전트에게 맡기는 것입니다.</li><li><strong>에이전트</strong> — 특정 역할을 맡은 AI 작업자입니다. 예를 들어 설계 담당, 구현 담당, 검토 담당처럼 역할이 나뉩니다.</li><li><strong>검증</strong> — 결과가 정말 맞는지 테스트, 빌드, 실행 확인 등으로 증거를 모으는 단계입니다.</li><li><strong>오케스트레이션</strong> — 여러 작업자와 도구가 서로 엉키지 않게 순서와 역할을 조율하는 일입니다. 지휘자가 오케스트라를 지휘하는 것과 비슷합니다.</li></ul></div></div></section>
+<section data-section="" id="agent-tiers">
+<h2><span class="anchor-link">#</span>에이전트 계층 및 카탈로그</h2>
+<p>OMX는 30개 이상의 전문 에이전트를 기능 레인으로 구성합니다. 사용 <code>/prompts:name</code> 그들을 호출합니다.</p>
+<div class="grid grid--2">
+<!-- Build/Analysis -->
+<div class="lane-card lane-card--build tilt-3d-polish">
+<span class="lane-card__badge tilt-3d-child">구축 및 분석</span>
+<h4 class="lane-card__title">구현 핵심</h4>
+<div class="lane-card__agents">
+<span class="agent-tag">탐험하다 <small>검색</small></span>
+<span class="agent-tag">기획자 <small>순서</small></span>
+<span class="agent-tag">건축가 <small>디자인</small></span>
+<span class="agent-tag">집행자 <small>코드</small></span>
+<span class="agent-tag">디버거 <small>수정</small></span>
+<span class="agent-tag">검증인 <small>증거</small></span>
+</div>
+</div>
+<!-- Review -->
+<div class="lane-card lane-card--review tilt-3d-polish">
+<span class="lane-card__badge tilt-3d-child">차선 검토</span>
+<h4 class="lane-card__title">품질 게이트</h4>
+<div class="lane-card__agents">
+<span class="agent-tag">코드-reviewer</span>
+<span class="agent-tag">보안-reviewer</span>
+<span class="agent-tag">성능-reviewer</span>
+<span class="agent-tag">api-reviewer</span>
+<span class="agent-tag">스타일-reviewer</span>
+</div>
+</div>
+<!-- Domain Specialists -->
+<div class="lane-card lane-card--domain tilt-3d-polish">
+<span class="lane-card__badge tilt-3d-child">도메인 전문가</span>
+<h4 class="lane-card__title">깊은 전문성</h4>
+<div class="lane-card__agents">
+<span class="agent-tag">종속성-expert</span>
+<span class="agent-tag">테스트-engineer</span>
+<span class="agent-tag">git-master</span>
+<span class="agent-tag">디자이너</span>
+<span class="agent-tag">연구원</span>
+</div>
+</div>
+<!-- Product & Coordination -->
+<div class="lane-card lane-card--product tilt-3d-polish">
+<span class="lane-card__badge tilt-3d-child">제품 및 코디네이션</span>
+<h4 class="lane-card__title">전략 및 피드백</h4>
+<div class="lane-card__agents">
+<span class="agent-tag">제품-manager</span>
+<span class="agent-tag">ux-researcher</span>
+<span class="agent-tag">비평가 <small>도전</small></span>
+<span class="agent-tag">비전 <small>이미지</small></span>
+</div>
+</div>
+</div>
+<div class="easy-note"><div class="easy-note__title">비개발자를 위한 쉬운 풀이</div><ul><li>에이전트 카탈로그는 AI 작업자 역할 목록입니다. explore는 찾기, executor는 만들기, verifier는 증거 확인처럼 각자 전문 역할이 있습니다.</li><li>역할 이름이 영어로 남아 있는 것은 실제 명령에서 그대로 써야 하기 때문이며, 설명은 한국어로 풀어 두었습니다.</li></ul><div class="section-term-list"><div class="section-term-list__title">이 섹션에서 나오는 용어 풀이</div><ul><li><strong>에이전트</strong> — 특정 역할을 맡은 AI 작업자입니다. 예를 들어 설계 담당, 구현 담당, 검토 담당처럼 역할이 나뉩니다.</li><li><strong>프롬프트</strong> — AI에게 역할, 규칙, 해야 할 일을 알려 주는 지시문입니다.</li><li><strong>LSP</strong> — Language Server Protocol의 줄임말입니다. 코드 편집기가 정의 찾기, 참조 찾기, 오류 표시를 하도록 돕는 표준입니다.</li><li><strong>디버깅</strong> — 버그의 원인을 찾아 고치는 과정입니다.</li><li><strong>리팩터링</strong> — 겉으로 보이는 기능은 유지하면서 내부 코드를 더 읽기 쉽고 안전하게 정리하는 일입니다.</li><li><strong>검증</strong> — 결과가 정말 맞는지 테스트, 빌드, 실행 확인 등으로 증거를 모으는 단계입니다.</li></ul></div></div></section>
+<section data-section="" id="team-architecture">
+<h2><span class="anchor-link">#</span>팀 아키텍처</h2>
+<p>OMX는 tmux의 팀을 위해 단계적 파이프라인을 사용합니다. 전환은 품질 게이트를 보장하기 위해 엄격하게 정의됩니다.</p>
+<div class="pipeline-diagram">
+<div class="pipeline-stage">
+<div class="pipeline-stage__icon">1</div>
+<div class="pipeline-stage__label">팀-plan</div>
+</div>
+<div class="pipeline-arrow">→</div>
+<div class="pipeline-stage">
+<div class="pipeline-stage__icon">2</div>
+<div class="pipeline-stage__label">팀-prd</div>
+</div>
+<div class="pipeline-arrow">→</div>
+<div class="pipeline-stage">
+<div class="pipeline-stage__icon">3</div>
+<div class="pipeline-stage__label">팀-exec</div>
+</div>
+<div class="pipeline-arrow">→</div>
+<div class="pipeline-stage">
+<div class="pipeline-stage__icon">4</div>
+<div class="pipeline-stage__label">팀-verify</div>
+</div>
+<div class="pipeline-arrow">→</div>
+<div class="pipeline-stage">
+<div class="pipeline-stage__icon">5</div>
+<div class="pipeline-stage__label">팀-fix</div>
+</div>
+</div>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>에서</th><th>받는 사람</th><th>트리거 조건</th></tr>
+</thead>
+<tbody>
+<tr><td>팀-plan</td><td>팀-prd</td><td>계획 및 분해 완료</td></tr>
+<tr><td>팀-prd</td><td>팀-exec</td><td>명시적으로 정의된 승인 기준</td></tr>
+<tr><td>팀-exec</td><td>팀-verify</td><td>모든 작업이 종료 상태에 도달함</td></tr>
+<tr><td>팀-verify</td><td>team-fix / 완료</td><td>검증결과</td></tr>
+<tr><td>팀-fix</td><td>팀-exec / 팀-verify</td><td>정의된 수정 전략</td></tr>
+</tbody>
+</table>
+</div>
+<div class="easy-note"><div class="easy-note__title">비개발자를 위한 쉬운 풀이</div><ul><li>팀 아키텍처는 여러 작업자가 동시에 움직일 때의 순서를 정합니다.</li><li>계획이 끝나야 요구사항 문서로 넘어가고, 요구사항이 분명해야 실행하며, 실행이 끝나야 검증하는 식으로 안전장치를 둡니다.</li></ul><div class="section-term-list"><div class="section-term-list__title">이 섹션에서 나오는 용어 풀이</div><ul><li><strong>팀 모드</strong> — 여러 AI 작업자 창을 띄워 한 목표를 나누어 처리하게 하는 OMX 실행 방식입니다.</li><li><strong>파이프라인</strong> — 계획 → 요구사항 정리 → 실행 → 검증 → 수정처럼 작업이 흐르는 단계 묶음입니다.</li><li><strong>PRD</strong> — Product Requirements Document의 줄임말입니다. 만들 기능의 목적, 요구사항, 성공 기준을 적은 문서입니다.</li><li><strong>작업자 / worker</strong> — 팀 모드에서 실제로 분석, 수정, 검증 같은 일을 맡는 개별 AI 실행 단위입니다.</li><li><strong>리더</strong> — 팀 전체 방향을 정하고 작업자를 배정하며 최종 결과를 검토하는 중심 역할입니다.</li><li><strong>검증</strong> — 결과가 정말 맞는지 테스트, 빌드, 실행 확인 등으로 증거를 모으는 단계입니다.</li></ul></div></div></section>
+<section data-section="" id="model-routing">
+<h3><span class="anchor-link">#</span>모델 라우팅</h3>
+<p>OMX는 작업을 가장 적절한 모델 계층에 지능적으로 라우팅하여 비용과 기능의 균형을 맞춥니다.</p>
+<div class="table-wrapper">
+<table>
+<thead><tr><th>복잡성</th><th>모델</th><th>사용 사례</th></tr></thead>
+<tbody>
+<tr><td><strong>단순</strong></td><td>Spark</td><td>조회, 서식 지정, 간단한 문서("이것은 무엇을 반환합니까?")</td></tr>
+<tr><td><strong>Standard</strong></td><td>기본값</td><td>구현, 테스트, 리팩토링("오류 처리 추가")</td></tr>
+<tr><td><strong>복잡한</strong></td><td>xhigh 추론</td><td>아키텍처, 심층 디버깅, 계획("리팩터링 인증 시스템")</td></tr>
+</tbody>
+</table>
+</div>
+<div class="easy-note"><div class="easy-note__title">비개발자를 위한 쉬운 풀이</div><ul><li>모델 라우팅은 작업 난이도에 따라 적당한 AI 두뇌를 고르는 기능입니다.</li><li>간단한 검색은 빠른 모델, 복잡한 설계나 원인 분석은 더 깊이 생각하는 모델을 쓰면 시간과 비용을 균형 있게 관리할 수 있습니다.</li></ul><div class="section-term-list"><div class="section-term-list__title">이 섹션에서 나오는 용어 풀이</div><ul><li><strong>모델</strong> — AI의 두뇌에 해당하는 실행 엔진입니다. 빠른 모델과 깊이 생각하는 모델이 구분됩니다.</li><li><strong>모델 라우팅</strong> — 쉬운 일은 빠른 모델에, 어려운 일은 더 깊게 생각하는 모델에 보내는 자동 배정입니다.</li><li><strong>Spark</strong> — 빠른 탐색과 간단한 정리에 쓰는 가벼운 모델 등급입니다.</li><li><strong>Standard</strong> — 일반 구현, 테스트, 리팩터링에 쓰는 기본 모델 등급입니다.</li><li><strong>xhigh reasoning</strong> — AI가 더 많은 사고 시간을 쓰도록 하는 높은 추론 설정입니다.</li></ul></div></div></section>
+<section data-section="" id="delegation">
+<h3><span class="anchor-link">#</span>위임 규칙</h3>
+<ul style="list-style-type: none; padding: 0;">
+<li style="margin-bottom: 1rem;">
+<strong>✅ 위임자:</strong> Multi-file 구현, 리팩터링, 디버깅, 검토, 계획, 연구, 검증.
+            </li>
+<li>
+<strong>🛑 직접 해보세요:</strong> 간단한 설명, 빠른 상태 확인, 단일-command 작업. 직접 쓰기는 괜찮습니다. <code>.omx/</code>, <code>.codex/</code> 구성 파일.
+            </li>
+</ul>
+<div class="easy-note"><div class="easy-note__title">비개발자를 위한 쉬운 풀이</div><ul><li>위임 규칙은 어떤 일은 에이전트에게 맡기고 어떤 일은 직접 처리할지 정하는 기준입니다.</li><li>큰 코드 변경, 검토, 테스트처럼 실수 위험이 큰 일은 역할을 나누고, 간단한 상태 확인은 직접 해도 된다는 뜻입니다.</li></ul><div class="section-term-list"><div class="section-term-list__title">이 섹션에서 나오는 용어 풀이</div><ul><li><strong>위임</strong> — 작업을 직접 하지 않고 알맞은 역할의 에이전트에게 맡기는 것입니다.</li><li><strong>검증</strong> — 결과가 정말 맞는지 테스트, 빌드, 실행 확인 등으로 증거를 모으는 단계입니다.</li><li><strong>리팩터링</strong> — 겉으로 보이는 기능은 유지하면서 내부 코드를 더 읽기 쉽고 안전하게 정리하는 일입니다.</li><li><strong>디버깅</strong> — 버그의 원인을 찾아 고치는 과정입니다.</li><li><strong>설정 파일</strong> — 프로그램이 어떻게 동작할지 적어 두는 파일입니다. config.toml이나 .omx-config.json이 예입니다.</li></ul></div></div></section>
+<!-- Execution Modes -->
+<section data-section="" id="execution-modes">
+<h2><span class="anchor-link">#</span>실행 모드</h2>
+<div id="autopilot">
+<article class="mode-card tilt-3d-polish">
+<div class="mode-card__header tilt-3d-child">
+<div class="mode-card__icon">🤖</div>
+<div>
+<h3 class="mode-card__title">Autopilot</h3>
+<span class="mode-card__keyword">자동 조종 장치</span>
+</div>
+</div>
+<p class="mode-card__description">플래그십 모드. 아이디어부터 전달된 코드까지 완전한 자율 실행. Self-correcting 루프.</p>
+<ul class="mode-card__features">
+<li>확장(분석가 + 설계자)</li>
+<li>기획(건축가 + 평론가)</li>
+<li>실행(Ralph + Ultrawork)</li>
+<li>QA 순환(UltraQA)</li>
+</ul>
+</article></div>
+<div class="easy-note"><div class="easy-note__title">비개발자를 위한 쉬운 풀이</div><ul><li>실행 모드는 OMX가 일을 진행하는 방식입니다. Autopilot은 자동 진행, Ralph는 끝까지 붙잡고 검증, Ultrawork는 병렬 처리에 가깝습니다.</li><li>모드 이름은 실제로 입력하는 키워드라서 영어로 남겨 두되, 각 모드의 목적을 한국어로 설명했습니다.</li></ul><div class="section-term-list"><div class="section-term-list__title">이 섹션에서 나오는 용어 풀이</div><ul><li><strong>워크플로우</strong> — 여러 단계를 정해진 순서대로 진행하는 일 처리 흐름입니다.</li><li><strong>검증</strong> — 결과가 정말 맞는지 테스트, 빌드, 실행 확인 등으로 증거를 모으는 단계입니다.</li></ul></div></div></section></div>
+<div id="ralph">
+<article class="mode-card tilt-3d-polish">
+<div class="mode-card__header tilt-3d-child">
+<div class="mode-card__icon">🔄</div>
+<div>
+<h3 class="mode-card__title">Ralph</h3>
+<span class="mode-card__keyword">랄프</span>
+</div>
+</div>
+<p class="mode-card__description">"바위는 결코 멈추지 않는다." 지속성 모드. 건축가가 목표 달성을 확인할 때까지 계속 작업합니다.</p>
+<ul class="mode-card__features">
+<li>무한 지속성 루프</li>
+<li>Ultrawork를 자동으로 포함합니다.</li>
+<li>강력한 검증 요구 사항</li>
+</ul>
+</article></div>
+</main></div>
+<div id="ultrawork">
+<article class="mode-card tilt-3d-polish">
+<div class="mode-card__header tilt-3d-child">
+<div class="mode-card__icon">⚡</div>
+<div>
+<h3 class="mode-card__title">Ultrawork</h3>
+<span class="mode-card__keyword">울프</span>
+</div>
+</div>
+<p class="mode-card__description">최대 병렬성. 하위 작업을 여러 백그라운드 에이전트에 적극적으로 위임합니다.</p>
+<ul class="mode-card__features">
+<li>최대 5명 이상의 동시 에이전트</li>
+<li>스마트 모델 라우팅</li>
+<li>Non-blocking 백그라운드 실행</li>
+</ul>
+</article></div>
+<h3 id="team-compositions"><span class="anchor-link">#</span>팀 구성</h3>
+<div class="callout info" style="margin-bottom: 1.5rem;">
+<div class="callout-title">v0.10.0</div>
+<p>아래의 모든 팀 구성은 다음에서 실행됩니다. <strong>격리된 기본적으로 git worktree</strong>. 각 작업자는 자체 worktree를 자동으로 가져옵니다. 병합 충돌이 없고 증분 통합이 가능하며 완전한 종료 롤백이 가능합니다.</p>
+</div>
+<div class="workflow">
+<strong>기능 개발:</strong>
+<span class="workflow__step">분석가</span> <span class="workflow__arrow">→</span>
+<span class="workflow__step">기획자</span> <span class="workflow__arrow">→</span>
+<span class="workflow__step">집행자</span> <span class="workflow__arrow">→</span>
+<span class="workflow__step">테스트-engineer</span> <span class="workflow__arrow">→</span>
+<span class="workflow__step">검증인</span>
+</div>
+<div class="workflow">
+<strong>버그 수정:</strong>
+<span class="workflow__step">탐험하다</span> <span class="workflow__arrow">→</span>
+<span class="workflow__step">디버거</span> <span class="workflow__arrow">→</span>
+<span class="workflow__step">집행자</span> <span class="workflow__arrow">→</span>
+<span class="workflow__step">검증인</span>
+</div>
+<!-- MCP Tools -->
+<section data-section="" id="mcp-tools">
+<h2><span class="anchor-link">#</span>MCP 도구</h2>
+<h3>상태 및 런타임</h3>
+<ul>
+<li><strong>상태 도구:</strong> <code>state_read</code>, <code>state_write</code>, <code>state_clear</code> 실행 모드 상태를 관리합니다.</li>
+<li><strong>메모장:</strong> <code>notepad_read</code>, <code>notepad_write_priority</code>, <code>notepad_write_working</code>, <code>notepad_write_manual</code>.</li>
+</ul>
+<h3>코드 인텔리전스</h3>
+<p><strong>LSP 도구:</strong> <code>lsp_hover</code>, <code>lsp_goto_definition</code>, <code>lsp_find_references</code>, <code>lsp_diagnostics</code>, <code>lsp_rename</code>.</p>
+<p><strong>AST 그렙:</strong> <code>ast_grep_search</code>, <code>ast_grep_replace</code> 구조적 리팩토링을 위해.</p>
+<h3>유틸리티</h3>
+<p><strong>파이썬 REPL:</strong> 데이터 분석을 위한 지속적인 환경.</p>
+<h3 id="mcp-working-directory-policy">MCP WorkingDirectory 정책(선택적 강화)</h3>
+<p>기본적으로 MCP 상태/memory/trace 도구는 호출자를 수락합니다-provided <code>workingDirectory</code>. 이를 제한하려면 루트 허용 목록을 설정하세요.</p>
+<div class="code-block-wrapper">
+<div class="code-block-header"><span class="code-lang">BASH</span></div>
+<pre><code>export OMX_MCP_WORKDIR_ROOTS="/path/to/project:/path/to/another-root"</code></pre>
+</div>
+<p>설정되면, <code>workingDirectory</code> 이러한 루트 외부의 값은 보안 도구에 의해 거부됩니다.</p>
+<div class="easy-note"><div class="easy-note__title">비개발자를 위한 쉬운 풀이</div><ul><li>MCP 도구는 AI가 프로젝트 상태, 코드 정보, 메모리 같은 외부 자료를 안전하게 읽고 쓰도록 해 주는 연결 도구입니다.</li><li>상태 도구는 현재 작업 단계 저장, LSP는 코드 위치 찾기, AST Grep은 코드 구조 검색, Python REPL은 작은 실험 실행에 해당합니다.</li></ul><div class="section-term-list"><div class="section-term-list__title">이 섹션에서 나오는 용어 풀이</div><ul><li><strong>MCP</strong> — Model Context Protocol의 줄임말입니다. AI와 외부 도구가 정보를 주고받는 약속된 연결 방식입니다.</li><li><strong>상태 루트</strong> — 팀 상태 파일을 어디에 저장하고 읽을지 정하는 기준 폴더입니다.</li><li><strong>프로젝트 메모리</strong> — 프로젝트의 기술 스택, 규칙, 중요한 결정을 저장해 다음 작업에서도 참고하게 하는 기억 저장소입니다.</li><li><strong>LSP</strong> — Language Server Protocol의 줄임말입니다. 코드 편집기가 정의 찾기, 참조 찾기, 오류 표시를 하도록 돕는 표준입니다.</li><li><strong>AST Grep</strong> — 코드를 단순 문자열이 아니라 문법 구조로 찾아 바꾸는 도구입니다.</li><li><strong>Python REPL</strong> — Python 명령을 한 줄씩 실행해 결과를 바로 보는 실험용 실행 창입니다.</li><li><strong>경로 이탈 / path escape</strong> — 정해진 프로젝트 폴더 밖의 파일을 몰래 보거나 건드리려는 상황입니다.</li><li><strong>허용 목록 / allowlist</strong> — 실행해도 된다고 미리 허락한 명령이나 경로 목록입니다.</li></ul></div></div></section>
+<!-- Skills & Commands -->
+<section data-section="" id="skills">
+<h2><span class="anchor-link">#</span>기술 및 명령</h2>
+<div class="table-wrapper">
+<table>
+<thead><tr><th>키워드</th><th>설명</th><th>예</th></tr></thead>
+<tbody>
+<tr><td><code>autopilot</code></td><td>자율 실행</td><td>"자동 조종으로 로그인 페이지 구축"</td></tr>
+<tr><td><code>ralph</code></td><td>지속성 모드</td><td>"랄프는 API를 리팩터링합니다"</td></tr>
+<tr><td><code>ulw</code></td><td>Ultrawork(병렬)</td><td>"이 5가지 버그를 수정하겠습니다"</td></tr>
+<tr><td><code>$team</code></td><td>tmux 팀원</td><td>"$team 3:실행자가 빌드합니다"</td></tr>
+<tr><td><code>plan</code></td><td>전략적 기획</td><td>"마이그레이션 계획"</td></tr>
+<tr><td><code>$ralplan</code></td><td>합의 계획</td><td>"$ralplan API"</td></tr>
+</tbody>
+</table>
+</div>
+<p>스킬은 다음과 같이 호출됩니다. <code>$name</code> 내부 Codex CLI. 에이전트 프롬프트는 다음과 같이 로드됩니다. <code>/prompts:name</code>.</p>
+<p><strong>유틸리티 기술:</strong> <code>$cancel</code>, <code>$note</code>, <code>$hud</code>, <code>$omc-doctor</code>.</p>
+<div class="easy-note"><div class="easy-note__title">비개발자를 위한 쉬운 풀이</div><ul><li>스킬은 반복 작업을 짧은 이름으로 실행하는 묶음 명령입니다.</li><li>$team, $ralplan처럼 달러 기호가 붙은 이름은 Codex 안에서 호출하는 작업 흐름이며, 명령 예시는 실제 사용 형식을 보존했습니다.</li></ul><div class="section-term-list"><div class="section-term-list__title">이 섹션에서 나오는 용어 풀이</div><ul><li><strong>스킬</strong> — 자주 쓰는 작업 절차를 묶어 둔 실행 방법입니다. 예: 계획 세우기, 코드 리뷰, 알림 설정.</li><li><strong>프롬프트</strong> — AI에게 역할, 규칙, 해야 할 일을 알려 주는 지시문입니다.</li><li><strong>팀 모드</strong> — 여러 AI 작업자 창을 띄워 한 목표를 나누어 처리하게 하는 OMX 실행 방식입니다.</li></ul></div></div></section>
+<!-- State & Memory -->
+<section data-section="" id="state-memory">
+<h2><span class="anchor-link">#</span>상태 및 메모리</h2>
+<h3>메모장 시스템</h3>
+<p>위치: <code>.omx/notepad.md</code>. 컨텍스트 프루닝에서 살아남은 탄력적인 메모리.</p>
+<ul>
+<li><strong>우선순위:</strong> 항상 컨텍스트에 주입됩니다.</li>
+<li><strong>근무 중:</strong> 7일 후 Auto-pruned.</li>
+<li><strong>매뉴얼:</strong> 절대로 가지치기를 하지 마세요.</li>
+</ul>
+<h3>프로젝트 메모리</h3>
+<p>위치: <code>.omx/project-memory.json</code>. 기술 스택, 규칙 및 아키텍처 지침을 저장합니다.</p>
+<div class="easy-note"><div class="easy-note__title">비개발자를 위한 쉬운 풀이</div><ul><li>상태와 메모리는 긴 작업에서 “어디까지 했는지”와 “중요한 결정이 무엇인지”를 잊지 않게 하는 저장 공간입니다.</li><li>notepad는 작업 메모장, project-memory는 프로젝트 장기 기억, .omx/state는 현재 실행 상태 저장소라고 보면 됩니다.</li></ul><div class="section-term-list"><div class="section-term-list__title">이 섹션에서 나오는 용어 풀이</div><ul><li><strong>프로젝트 메모리</strong> — 프로젝트의 기술 스택, 규칙, 중요한 결정을 저장해 다음 작업에서도 참고하게 하는 기억 저장소입니다.</li><li><strong>설정 파일</strong> — 프로그램이 어떻게 동작할지 적어 두는 파일입니다. config.toml이나 .omx-config.json이 예입니다.</li><li><strong>상태 루트</strong> — 팀 상태 파일을 어디에 저장하고 읽을지 정하는 기준 폴더입니다.</li><li><strong>런타임</strong> — 프로그램이 실제로 실행되고 있는 시간과 그 실행 환경을 말합니다.</li></ul></div></div></section>
+<!-- Configuration -->
+<section data-section="" id="configuration">
+<h2><span class="anchor-link">#</span>구성</h2>
+<p>실행 <code>omx setup</code> 기본값을 구성합니다. 사용 <code>--scope user</code> 또는 <code>--scope project</code> 파일이 설치된 위치를 제어합니다.</p>
+<p><strong>작업 트리 경로:</strong></p>
+<ul>
+<li><code>.omx/state/</code> - 모드 상태 파일</li>
+<li><code>.omx/logs/</code> - 감사 로그</li>
+<li><code>.omx/plans/</code> - 기획문서</li>
+</ul>
+<div class="easy-note"><div class="easy-note__title">비개발자를 위한 쉬운 풀이</div><ul><li>구성은 OMX가 어떤 파일과 설정값을 보고 동작할지 정하는 단계입니다.</li><li>사용자 범위 설정은 내 계정 전체에 적용되고, 프로젝트 범위 설정은 현재 프로젝트 폴더에만 적용됩니다.</li></ul><div class="section-term-list"><div class="section-term-list__title">이 섹션에서 나오는 용어 풀이</div><ul><li><strong>setup</strong> — OMX가 필요한 설정 파일, 역할 프롬프트, 스킬, 연결 도구를 준비하는 초기 설정 단계입니다.</li><li><strong>설정 파일</strong> — 프로그램이 어떻게 동작할지 적어 두는 파일입니다. config.toml이나 .omx-config.json이 예입니다.</li><li><strong>환경 변수</strong> — 터미널이나 운영체제에 임시로 저장해 프로그램이 읽게 하는 설정값입니다.</li><li><strong>config.toml</strong> — Codex와 OMX 설정을 적는 TOML 형식의 설정 파일입니다.</li><li><strong>TOML</strong> — 설정 파일에 자주 쓰는 읽기 쉬운 텍스트 형식입니다.</li><li><strong>JSON</strong> — 데이터를 중괄호와 키-값 형태로 적는 형식입니다. 사람이 읽고 프로그램도 읽기 쉽습니다.</li></ul></div></div></section>
+<!-- CLI Reference -->
+<section data-section="" id="cli-reference">
+<h2><span class="anchor-link">#</span>CLI 참고</h2>
+<p>는 <code>omx</code> command-line 도구를 사용하면 터미널에서 OMX를 시작, 구성 및 관리할 수 있습니다.</p>
+<h3 id="cli-getting-started">시작하기</h3>
+<p>빠르게 설치하고 시작하려면 다음 명령을 실행하세요.</p>
+<ul>
+<li>설치: <code>npm install -g oh-my-codex</code></li>
+<li>출시: <code>omx</code> (tmux에서 HUD를 사용하여 Codex CLI 실행)</li>
+<li>설정: <code>omx setup</code></li>
+<li>의사: <code>omx doctor</code></li>
+<li>이전 세션을 재개합니다. <code>omx resume</code></li>
+</ul>
+<div class="code-block-wrapper">
+<div class="code-block-header"><span class="code-lang">BASH</span></div>
+<pre><code>npm install -g oh-my-codex
+omx
+omx setup
+omx doctor
+omx resume
+omx --xhigh --madmax</code></pre>
+</div>
+<div class="callout info">
+<div class="callout-title">팁</div>
+<p>최대 전력을 얻으려면 다음을 실행하십시오. <code>omx --xhigh --madmax</code>.</p>
+</div>
+<h3 id="cli-commands">핵심 명령</h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr>
+<th>명령</th>
+<th>그것이 하는 일</th>
+</tr>
+</thead>
+<tbody>
+<tr><td><code>omx</code></td><td>Codex CLI 실행(tmux에서 HUD auto-attaches)</td></tr>
+<tr><td><code>omx setup</code></td><td>스킬, 프롬프트, MCP 서버 및 AGENTS.md를 설치합니다. 지원 <code>--scope user|project</code>.</td></tr>
+<tr><td><code>omx agents-init .</code></td><td>부트스트랩 경량 <code>AGENTS.md</code> 저장소 또는 하위 트리용 파일입니다.</td></tr>
+<tr><td><code>omx doctor</code></td><td>설치 상태를 확인하세요. 사용 <code>--team</code> 작업자 진단용.</td></tr>
+<tr><td><code>omx ask &lt;provider&gt;</code></td><td>Advisor(claude|gemini)를 직접 쿼리합니다. 지원 <code>--agent-prompt &lt;name&gt;</code>.</td></tr>
+<tr><td><code>omx resume</code></td><td>터미널에서 이전 대화형 Codex 세션을 재개합니다.</td></tr>
+<tr><td><code>omx explore</code></td><td>셸 네이티브 저장소 검사를 위한 기본 읽기 전용 탐색 표면입니다. 적절한 경우 Sparkshell을 통해 라우팅할 수 있습니다.</td></tr>
+<tr><td><code>omx sparkshell</code></td><td>적응형 요약 및 tmux 창 캡처 지원이 포함된 명시적 셸 네이티브 검사 명령입니다.</td></tr>
+<tr><td><code>omx team</code></td><td>tmux의 tmux에서 병렬 작업자 창을 생성/상태 확인/재개/종료합니다.</td></tr>
+<tr><td><code>omx ralph</code></td><td>ralph 지속성 모드가 활성화된 상태에서 Codex를 실행합니다.</td></tr>
+<tr><td><code>omx status</code></td><td>활성 모드 및 실행 상태를 표시합니다.</td></tr>
+<tr><td><code>omx cancel</code></td><td>활성 실행 모드(자동 조종 장치, 팀 등)를 취소합니다.</td></tr>
+<tr><td><code>omx hud</code></td><td>watch/json/preset 중심 운영자 보기를 사용하여 런타임 HUD 상태를 검사합니다.</td></tr>
+<tr><td><code>omx reasoning [mode]</code></td><td>모델 추론 노력을 표시하거나 설정합니다(낮음|보통|높음|xhigh).</td></tr>
+<tr><td><code>omx version</code></td><td>버전 정보를 표시합니다.</td></tr>
+<tr><td><code>omx help</code></td><td>도움말 메시지를 표시합니다.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="cli-launch-flags">발사 플래그</h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr>
+<th>깃발</th>
+<th>그것이 하는 일</th>
+</tr>
+</thead>
+<tbody>
+<tr><td><code>--yolo</code></td><td>yolo 모드에서 Codex를 실행합니다.</td></tr>
+<tr><td><code>--high / --xhigh</code></td><td>high/extra-high 추론 노력의 약어입니다.</td></tr>
+<tr><td><code>--madmax</code></td><td>DANGEROUS: Codex 승인 및 샌드박스를 우회합니다.</td></tr>
+<tr><td><code>--spark</code></td><td>팀 작업자에게는 Codex 스파크 모델(~1.3배 더 빠름)을 사용합니다.</td></tr>
+<tr><td><code>--madmax-spark</code></td><td>Spark 모델 + 리더 및 작업자에 대한 우회 승인.</td></tr>
+<tr><td><code>-w, --worktree[=&lt;name&gt;]</code></td><td>git worktree(격리된 환경)에서 실행합니다.</td></tr>
+<tr><td><code>--force</code></td><td>설치 중에 강제로 다시 설치(기존 파일 덮어쓰기)합니다.</td></tr>
+<tr><td><code>--dry-run</code></td><td>그것을 하지 않고 무엇을 할 것인지 보여주세요.</td></tr>
+<tr><td><code>--verbose</code></td><td>디버깅을 위한 자세한 출력을 표시합니다.</td></tr>
+<tr><td><code>--scope &lt;user|project&gt;</code></td><td>제어 설치 대상(글로벌 또는 로컬)</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="cli-explore-examples">탐색, Sparkshell 및 이력서</h3>
+<p><code>omx explore</code> 의도적으로 읽기 전용 및 shell-only. 빠른 저장소 검색에 적합하지만 <code>omx resume</code> 그리고 <code>omx sparkshell</code> 작업자 복구 및 직접 셸 네이티브 검사를 담당합니다.</p>
+<div class="code-block-wrapper">
+<div class="code-block-header"><span class="code-lang">BASH</span></div>
+<pre><code># Read-only repository exploration
+omx explore --prompt "which files define team routing"
+omx explore --prompt-file prompts/explore-task.md
+
+# Resume interactive work
+omx resume
+
+# Direct sparkshell inspection
+omx sparkshell git --version
+omx sparkshell --tmux-pane %12 --tail-lines 400</code></pre>
+</div>
+<div class="callout warning">
+<div class="callout-title">제약조건 살펴보기</div>
+<p><code>omx explore</code> 완전한 Codex 도구 패리티를 약속하지 않습니다. 읽기 전용, shell-only를 유지하고 파이프, 리디렉션, 셸 체인 및 대상 저장소 외부의 경로 이스케이프를 차단합니다.</p>
+</div>
+<ul>
+<li><code>omx explore</code> 현재 허용 목록 <code>rg</code>, <code>grep</code>, <code>ls</code>, <code>find</code>, <code>wc</code>, <code>cat</code>, <code>head</code>, <code>tail</code>, <code>pwd</code>, 그리고 <code>printf</code>.</li>
+<li><code>omx sparkshell</code> 다음과 같은 env-based 모델 라우팅을 사용합니다. <code>OMX_SPARKSHELL_MODEL</code> 요청 시 명시적인 tmux-pane 요약을 지원합니다.</li>
+</ul>
+<h3 id="cli-ask-examples">고문 (질문) 예</h3>
+<p>는 <code>omx ask</code> 명령을 사용하면 터미널에서 직접 전문 조언자를 쿼리할 수 있습니다.</p>
+<div class="code-block-wrapper">
+<div class="code-block-header"><span class="code-lang">BASH</span></div>
+<pre><code># Simple queries
+omx ask claude "review this diff"
+omx ask gemini "brainstorm alternatives for the auth system"
+
+# Role-specific queries
+omx ask claude --agent-prompt executor "implement feature X with tests"
+omx ask gemini --agent-prompt planner "draft a rollout plan for v0.9"
+
+# Shorthand prompt flags
+omx ask claude -p "summarize the recent changes"
+omx ask gemini --prompt "check this regex for errors"</code></pre>
+</div>
+<h3 id="cli-team">팀 명령</h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr>
+<th>명령</th>
+<th>그것이 하는 일</th>
+</tr>
+</thead>
+<tbody>
+<tr><td><code>omx team 3:executor "task"</code></td><td>팀 작업자에게 작업 시작</td></tr>
+<tr><td><code>omx team 2:explore "short scoped analysis task"</code></td><td>빠른 저장소 분석을 위해 소규모 읽기 전용 탐색 팀을 시작합니다.</td></tr>
+<tr><td><code>omx team status &lt;team-name&gt;</code></td><td>팀 상태 확인</td></tr>
+<tr><td><code>omx team resume &lt;team-name&gt;</code></td><td>팀 이력서</td></tr>
+<tr><td><code>omx team shutdown &lt;team-name&gt; [--force]</code></td><td>셧다운팀</td></tr>
+<tr><td>환경 변수</td><td><code>OMX_TEAM_WORKER_CLI</code> (자동|Codex|클로드|제미니), <code>OMX_TEAM_WORKER_CLI_MAP</code> (codex,claude,gemini와 같은 작업자별 믹스)</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="cli-other">후크, 확장 및 네이티브 빌드 도우미</h3>
+<p>OMX는 또한 후크 스캐폴딩, HUD 검사, 자동 연구, 실행 및 팀 worktree 표면을 위한 기본 빌드 또는 검증 도우미를 노출합니다.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr>
+<th>명령</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr><td><code>omx hooks init</code></td><td>새로운 후크 플러그인을 스캐폴드하세요. <code>.omx/hooks/</code>.</td></tr>
+<tr><td><code>omx hooks status</code></td><td>설치된 후크 플러그인의 상태를 표시합니다.</td></tr>
+<tr><td><code>omx hooks validate</code></td><td>후크 플러그인 구현을 검증합니다.</td></tr>
+<tr><td><code>omx hud --watch</code></td><td>런타임 상태 및 HUD 출력을 실시간으로 시청하세요.</td></tr>
+<tr><td><code>omx hud --json</code></td><td>HUD 상태를 machine-readable JSON로 내보냅니다.</td></tr>
+<tr><td><code>omx tmux-hook init</code></td><td>tmux 프롬프트 삽입 해결 방법을 초기화합니다.</td></tr>
+<tr><td><code>npm run build:full</code></td><td>One-shot TypeScript와 탐색 하네스 및 Sparkshell을 위한 패키지형 기본 빌드입니다.</td></tr>
+<tr><td><code>npm run test:explore</code></td><td>기본 탐색 하네스 및 통합 경로를 확인합니다.</td></tr>
+<tr><td><code>npm run test:sparkshell</code></td><td>Sparkshell 동작, 요약 및 기본 브리지 배선을 확인합니다.</td></tr>
+</tbody>
+</table>
+</div>
+<p>플러그인은 기본적으로 비활성화되어 있습니다. 설정하여 활성화하세요. <code>OMX_HOOK_PLUGINS=1</code> 당신의 환경에서.</p>
+<div class="easy-note"><div class="easy-note__title">비개발자를 위한 쉬운 풀이</div><ul><li>CLI 참고는 터미널에서 입력할 수 있는 명령어 사전입니다.</li><li>각 명령은 “무엇을 하는지”를 설명하며, 위험한 옵션은 왜 조심해야 하는지도 함께 풀어 두었습니다.</li></ul><div class="section-term-list"><div class="section-term-list__title">이 섹션에서 나오는 용어 풀이</div><ul><li><strong>CLI</strong> — Command Line Interface의 줄임말입니다. 버튼 대신 터미널에 글자를 입력해서 프로그램을 실행하는 방식입니다.</li><li><strong>명령어</strong> — 컴퓨터에게 시키는 짧은 문장입니다. 예: npm install -g oh-my-codex 는 설치하라는 뜻입니다.</li><li><strong>터미널</strong> — 명령어를 글자로 입력하는 검은 화면 또는 콘솔 창입니다.</li><li><strong>resume</strong> — 이전에 하던 Codex 작업 세션을 다시 이어 여는 기능입니다.</li><li><strong>읽기 전용</strong> — 파일을 바꾸지 않고 보기만 하는 상태입니다.</li><li><strong>허용 목록 / allowlist</strong> — 실행해도 된다고 미리 허락한 명령이나 경로 목록입니다.</li><li><strong>yolo 모드</strong> — 승인 절차를 줄이고 빠르게 실행하는 모드입니다. 편하지만 위험할 수 있습니다.</li><li><strong>madmax</strong> — 승인과 샌드박스 제한을 크게 우회하는 위험한 실행 옵션입니다. 믿을 수 있는 환경에서만 써야 합니다.</li><li><strong>샌드박스</strong> — 프로그램이 마음대로 시스템을 건드리지 못하게 제한하는 안전 울타리입니다.</li><li><strong>Spark</strong> — 빠른 탐색과 간단한 정리에 쓰는 가벼운 모델 등급입니다.</li><li><strong>worktree</strong> — 하나의 Git 저장소에서 작업 공간을 여러 개로 나눈 것입니다. 여러 사람이 동시에 고쳐도 서로 파일을 덮어쓰지 않게 돕습니다.</li></ul></div></div></section>
+<!-- Notifications -->
+<section data-section="" id="notifications">
+<h2><span class="anchor-link">#</span>알림</h2>
+<p>OMX 세션 상태가 변경되거나 입력이 필요할 때 경고를 받습니다.</p>
+<h3 id="notify-overview">개요</h3>
+<ul>
+<li>OMX는 Codex 세션이 시작, 중지, 유휴 상태가 되거나 입력을 요청할 때 경고를 보낼 수 있습니다.</li>
+<li>Discord(웹훅), Discord(봇 API), Telegram, Slack 및 일반 웹훅의 5가지 플랫폼이 지원됩니다.</li>
+<li>다음에서 알림을 구성할 수 있습니다. <code>config.toml</code> 또는 환경 변수를 사용합니다.</li>
+</ul>
+<div class="callout info">
+<div class="callout-title">팁</div>
+<p>환경 변수로 시작한 다음 실행하십시오. <code>omx setup</code> 구성 파일을 작성합니다.</p>
+</div>
+<h3 id="notify-setup">빠른 설정</h3>
+<p>가장 빠른 설정은 환경 변수를 내보낸 다음 설정을 실행하는 것입니다.</p>
+<div class="code-block-wrapper">
+<div class="code-block-header"><span class="code-lang">BASH</span></div>
+<pre><code>export OMX_TELEGRAM_BOT_TOKEN=xxx
+export OMX_TELEGRAM_CHAT_ID=xxx
+export OMX_DISCORD_WEBHOOK_URL=xxx
+export OMX_SLACK_WEBHOOK_URL=xxx
+
+omx setup</code></pre>
+</div>
+<h3 id="notify-platforms">플랫폼</h3>
+<p>OMX는 다양한 플랫폼을 지원하여 어디서든 정보를 얻을 수 있습니다.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr>
+<th>플랫폼</th>
+<th>주요 구성 필드</th>
+<th>세부정보</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Telegram</strong></td>
+<td><code>botToken</code>, <code>chatId</code></td>
+<td>지원 <code>parseMode</code> (마크다운 또는 HTML). 응답 주입을 위해 승인된 채팅 ID에 응답합니다.</td>
+</tr>
+<tr>
+<td><strong>Discord(웹훅)</strong></td>
+<td><code>webhookUrl</code></td>
+<td>간단한 one-way 경고. 맞춤형 지원 <code>username</code> 그리고 <code>mention</code> 대상(예: <code>&lt;@123456&gt;</code>).</td>
+</tr>
+<tr>
+<td><strong>Discord (봇 API)</strong></td>
+<td><code>botToken</code>, <code>channelId</code></td>
+<td>two-way 통신에 권장됩니다. 다음을 갖춘 Discord 봇이 필요합니다. <code>Send Messages</code> 권한.</td>
+</tr>
+<tr>
+<td><strong>Slack</strong></td>
+<td><code>webhookUrl</code></td>
+<td>맞춤형 지원 <code>channel</code>, <code>username</code>, 그리고 <code>mention</code> 대상(예: <code>&lt;!here&gt;</code>).</td>
+</tr>
+<tr>
+<td><strong>일반 웹훅</strong></td>
+<td><code>url</code></td>
+<td>POST 또는 PUT JSON 페이로드는 모든 엔드포인트에 적용됩니다. 맞춤형 지원 <code>headers</code> 인증을 위해.</td>
+</tr>
+<tr>
+<td><strong>OpenClaw</strong></td>
+<td><code>openclaw: { enabled: true }</code></td>
+<td>프로그래밍 가능한 후크 오케스트레이션을 위한 고급 게이트웨이입니다. 참조 <a href="#notify-openclaw">OpenClaw 구성</a>.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="notify-openclaw">OpenClaw 구성</h3>
+<p>OpenClaw는 프로덕션-grade 알림 오케스트레이션에 권장되는 경로입니다. 이를 통해 에이전트 회전 및 복잡한 팔로우-up 동작을 트리거할 수 있습니다.</p>
+<div class="code-block-wrapper">
+<div class="code-block-header"><span class="code-lang">JSON(오픈클로 프로파일)</span></div>
+<pre><code>{
+  "notifications": {
+    "verbosity": "verbose",
+    "openclaw": {
+      "enabled": true,
+      "gateways": {
+        "local": {
+          "type": "http",
+          "url": "http://127.0.0.1:18789/hooks/agent",
+          "headers": { "Authorization": "Bearer ${HOOKS_TOKEN}" }
+        }
+      },
+      "hooks": {
+        "session-start": {
+          "enabled": true,
+          "gateway": "local",
+          "instruction": "[session-start|exec] project={{projectName}} session={{sessionId}}"
+        },
+        "ask-user-question": {
+          "enabled": true,
+          "gateway": "local",
+          "instruction": "[ask-user-question|exec] session={{sessionId}} question={{question}}"
+        }
+      }
+    }
+  }
+}</code></pre>
+</div>
+<p>자세한 내용은 다음을 참조하세요. <a href="https://github.com/Yeachan-Heo/oh-my-codex/blob/main/docs/openclaw-integration.md" rel="noopener noreferrer" target="_blank">전체 OpenClaw 통합 가이드</a>.</p>
+<h3 id="notify-events">이벤트</h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr>
+<th>이벤트</th>
+<th>화재가 발생하면</th>
+</tr>
+</thead>
+<tbody>
+<tr><td><code>session-start</code></td><td>Codex 세션이 시작되면 발생합니다.</td></tr>
+<tr><td><code>session-stop</code></td><td>세션이 중지되면 발생합니다(모드 완료 또는 사용자 중단).</td></tr>
+<tr><td><code>session-end</code></td><td>세션이 종료되면 발생합니다.</td></tr>
+<tr><td><code>session-idle</code></td><td>세션이 유휴 상태(입력 대기 중)일 때 발생합니다.</td></tr>
+<tr><td><code>ask-user-question</code></td><td>에이전트가 사용자에게 질문을 하면 실행됩니다.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="notify-verbosity">다변</h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr>
+<th>레벨</th>
+<th>행동</th>
+</tr>
+</thead>
+<tbody>
+<tr><td><code>verbose</code></td><td>모든 텍스트 및 도구 호출 출력.</td></tr>
+<tr><td><code>agent</code></td><td>Per-agent-call 이벤트(포함 <code>ask-user-question</code>).</td></tr>
+<tr><td><code>session</code></td><td>시작, 유휴, 중지 및 종료 이벤트와 tmux 꼬리 조각(기본값).</td></tr>
+<tr><td><code>minimal</code></td><td>시작, 중지, 종료만 가능합니다. 유휴 상태도 없고 tmux 테일도 없습니다.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="notify-env-vars">환경 변수</h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr>
+<th>변수</th>
+<th>목적</th>
+</tr>
+</thead>
+<tbody>
+<tr><td><code>OMX_DISCORD_WEBHOOK_URL</code></td><td>Discord 웹훅 엔드포인트.</td></tr>
+<tr><td><code>OMX_DISCORD_NOTIFIER_BOT_TOKEN</code></td><td>Bot API 모드용 Discord 봇 토큰입니다.</td></tr>
+<tr><td><code>OMX_DISCORD_NOTIFIER_CHANNEL</code></td><td>Bot API 모드의 Discord 채널 ID입니다.</td></tr>
+<tr><td><code>OMX_DISCORD_MENTION</code></td><td>Discord 알림에 대한 선택적 언급 대상입니다.</td></tr>
+<tr><td><code>OMX_TELEGRAM_BOT_TOKEN</code></td><td>Telegram 봇 토큰.</td></tr>
+<tr><td><code>OMX_TELEGRAM_CHAT_ID</code></td><td>Telegram 채팅 ID입니다.</td></tr>
+<tr><td><code>OMX_SLACK_WEBHOOK_URL</code></td><td>Slack 웹훅 엔드포인트.</td></tr>
+<tr><td><code>OMX_SLACK_MENTION</code></td><td>Slack 알림에 대한 선택적 언급 대상입니다.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="notify-templates">템플릿</h3>
+<ul>
+<li>사용자 정의 메시지 템플릿 사용 <code>{{variable}}</code> 구문.</li>
+<li>사용 가능한 변수: <code>event</code>, <code>sessionId</code>, <code>timestamp</code>, <code>projectName</code>, <code>activeMode</code>, <code>question</code>, <code>tmuxTail</code>.</li>
+</ul>
+<h3 id="notify-example-config">예시 구성</h3>
+<p>구성은 다음 위치에 저장됩니다. <code>~/.codex/config.toml</code> (Codex 기본) 또는 <code>.omx-config.json</code> (OMX 고급).</p>
+<div class="code-block-wrapper">
+<div class="code-block-header"><span class="code-lang">TOML(Codex 네이티브)</span></div>
+<pre><code>[notifications]
+enabled = true
+verbosity = "session"
+
+[notifications.telegram]
+enabled = true
+botToken = "123456:ABC-DEF"
+chatId = "-100123456789"
+
+[notifications.slack]
+enabled = true
+webhookUrl = "https://hooks.slack.com/services/xxx"
+mention = "@U12345"</code></pre>
+</div>
+<p>고급 라우팅을 위해 일반 명령 또는 웹훅 별칭을 사용할 수 있습니다.</p>
+<div class="code-block-wrapper">
+<div class="code-block-header"><span class="code-lang">JSON (.omx-config.json)</span></div>
+<pre><code>{
+  "notifications": {
+    "custom_webhook_command": {
+      "enabled": true,
+      "url": "https://api.example.com/hooks",
+      "method": "POST",
+      "headers": { "X-Api-Key": "my-secret-key" },
+      "events": ["session-end", "ask-user-question"]
+    },
+    "custom_cli_command": {
+      "enabled": true,
+      "command": "notify-send \"OMX: {{event}}\" \"{{message}}\"",
+      "events": ["session-start", "session-end"]
+    }
+  }
+}</code></pre>
+</div>
+<h3 id="advanced-team-config">고급 팀 구성</h3>
+<p>환경 변수를 사용하여 -tune 팀 동작을 미세화하거나 <code>.omx-config.json</code>.</p>
+<div class="code-block-wrapper">
+<div class="code-block-header"><span class="code-lang">BASH</span></div>
+<pre><code># Mix different AI providers in one team
+export OMX_TEAM_WORKER_CLI_MAP=codex,claude,gemini
+omx team 3:executor "parallel refactoring"
+
+# Force all workers to Gemini CLI
+export OMX_TEAM_WORKER_CLI=gemini
+omx team 2:executor "sync docs and report"
+
+# Force a specific model for workers
+export OMX_TEAM_WORKER_LAUNCH_ARGS="--model gpt-5.3-codex-spark"
+omx team 2:architect "design the system"
+
+# Enable dynamic scaling
+export OMX_TEAM_SCALING_ENABLED=1
+omx team 2:executor "task"</code></pre>
+</div>
+<h3 id="notify-reply">응답 주입</h3>
+<ul>
+<li>Telegram, Discord 또는 Slack에서 응답하여 Codex 세션에 텍스트를 삽입할 수 있습니다.</li>
+<li>이 기능을 사용하려면 tmux 및 승인된 사용자 ID가 필요합니다.</li>
+<li>핵심 구성 필드는 다음과 같습니다. <code>enabled</code>, <code>pollIntervalMs</code>, <code>maxMessageLength</code>, 그리고 <code>rateLimitPerMinute</code>.</li>
+</ul>
+<div class="easy-note"><div class="easy-note__title">비개발자를 위한 쉬운 풀이</div><ul><li>알림은 작업 시작, 멈춤, 질문 필요 같은 상황을 Telegram, Discord, Slack 등으로 알려 주는 기능입니다.</li><li>토큰, 웹훅 URL, 채널 ID는 비밀값이거나 대상 주소이므로 공개 저장소에 올리지 않는 것이 안전합니다.</li></ul><div class="section-term-list"><div class="section-term-list__title">이 섹션에서 나오는 용어 풀이</div><ul><li><strong>알림 이벤트</strong> — 세션 시작, 멈춤, 종료, 사용자 질문처럼 알림을 보낼 계기가 되는 사건입니다.</li><li><strong>웹훅 / webhook</strong> — 어떤 사건이 생기면 지정된 인터넷 주소로 자동 메시지를 보내는 방식입니다.</li><li><strong>봇 토큰</strong> — Telegram이나 Discord 봇을 식별하고 권한을 주는 비밀 키입니다. 공개하면 안 됩니다.</li><li><strong>채널 ID / chat ID</strong> — 알림을 보낼 대화방이나 채널을 가리키는 번호입니다.</li><li><strong>헤더 / header</strong> — 웹 요청에 함께 붙는 부가 정보입니다. 인증 키를 넣는 데 자주 쓰입니다.</li><li><strong>인증 / auth</strong> — 누가 요청했는지 확인하고 허락된 사람인지 검사하는 절차입니다.</li><li><strong>POST / PUT</strong> — 웹 서버로 데이터를 보낼 때 쓰는 요청 방식입니다. POST는 새로 보내기, PUT은 지정 위치에 넣거나 갱신하는 의미로 자주 씁니다.</li><li><strong>환경 변수</strong> — 터미널이나 운영체제에 임시로 저장해 프로그램이 읽게 하는 설정값입니다.</li><li><strong>reply injection / 응답 주입</strong> — Telegram, Discord, Slack 답장을 Codex 세션 입력으로 넣어 원격으로 대화에 참여하는 기능입니다.</li><li><strong>OpenClaw</strong> — 알림과 후속 작업 트리거를 더 유연하게 다루기 위한 외부 연동 게이트웨이입니다.</li></ul></div></div></section>
+<!-- Recommended Workflows -->
+<section data-section="" id="workflows">
+<h2><span class="anchor-link">#</span>권장되는 워크플로우</h2>
+<p>일반적인 작업을 위한 Battle-tested 패턴입니다. 맞는 것을 고르세요.</p>
+<article class="mode-card" id="wf-full-auto">
+<h3>PRD의 전체-Auto</h3>
+<p>먼저 계획이 필요한 큰 기능의 경우.</p>
+<div class="workflow">
+<span class="workflow__step">$ralplan</span>
+<span class="workflow__arrow">→</span>
+<span class="workflow__step">$team</span>
+<span class="workflow__arrow">→</span>
+<span class="workflow__step">$ralph</span>
+</div>
+<ol>
+<li>$ralplan는 기획자+건축가+비평가의 합의를 통해 요구사항을 수집하고 계획을 수립합니다.</li>
+<li>$team는 병렬로 빌드할 병렬 tmux 작업자를 생성합니다.</li>
+<li>$ralph는 모든 것이 완료되었음을 확인할 때까지 지속됩니다.</li>
+</ol>
+</article>
+<article class="mode-card" id="wf-no-brainer">
+<h3>아니요-Brainer</h3>
+<p>작업이 명확하고 완료되기를 원할 때.</p>
+<div class="workflow">
+<span class="workflow__step">$autopilot</span>
+<span class="workflow__arrow">→</span>
+<span class="workflow__step">$ultrawork</span>
+<span class="workflow__arrow">→</span>
+<span class="workflow__step">$ralph</span>
+</div>
+<ol>
+<li>$autopilot는 바퀴를 잡고 자율적으로 작동합니다.</li>
+<li>$ultrawork는 속도를 위해 하위 작업을 병렬화합니다.</li>
+<li>$ralph는 확인될 때까지 지속됩니다("돌은 절대 멈추지 않습니다").</li>
+</ol>
+</article>
+<article class="mode-card" id="wf-fix-debug">
+<h3>수정/디버깅</h3>
+<p>버그 및 오류의 경우.</p>
+<div class="workflow">
+<span class="workflow__step">$plan</span>
+<span class="workflow__arrow">→</span>
+<span class="workflow__step">$ralph</span>
+<span class="workflow__arrow">→</span>
+<span class="workflow__step">$ultraqa</span>
+</div>
+<ol>
+<li>$plan는 문제를 조사하고 수정 전략을 만듭니다.</li>
+<li>$ralph는 수정 사항을 구현하고 완료될 때까지 계속 진행됩니다.</li>
+<li>$ultraqa는 모든 테스트가 통과할 때까지 테스트 -&gt; 확인 -&gt; 수정을 순환합니다.</li>
+</ol>
+</article>
+<article class="mode-card" id="wf-parallel-issues">
+<h3>병렬 문제 처리</h3>
+<p>여러 문제나 티켓을 동시에 처리합니다.</p>
+<div class="workflow">
+<span class="workflow__step">omx team (건축가)</span>
+<span class="workflow__arrow">→</span>
+<span class="workflow__step">omx team (노동자)</span>
+<span class="workflow__arrow">→</span>
+<span class="workflow__step">$ralplan</span>
+<span class="workflow__arrow">→</span>
+<span class="workflow__step">$ralph + $ultrawork</span>
+<span class="workflow__arrow">→</span>
+<span class="workflow__step">$ultraqa</span>
+</div>
+<ol>
+<li>건축가 작업자를 시작하여 모든 문제를 분석하고 하나의 완전한 계획 초안을 작성하십시오.</li>
+<li>별도의 worktrees에서 작업자를 병렬로 실행하고 각각 개발자에게 PR을 제출합니다.</li>
+<li>열려 있는 PR을 검토하고 병합한 다음 $ralplan를 실행하여 충돌을 안전하게 해결하세요.</li>
+<li>모든 테스트가 통과할 때까지 $ralph, $ultrawork 및 $ultraqa로 완료합니다.</li>
+</ol>
+</article>
+<div class="callout info">
+<div class="callout-title">알아두면 좋은 점</div>
+<p>이 네 가지 패턴은 대부분의 실제-world 작업을 다룹니다. 특정 작업을 위한 다른 기술이 존재하지만 거의 필요하지 않습니다. day-to-day.</p>
+</div>
+<div class="easy-note"><div class="easy-note__title">비개발자를 위한 쉬운 풀이</div><ul><li>권장 워크플로우는 자주 쓰는 작업 조합입니다. 큰 기능은 계획 후 팀 실행, 명확한 작업은 자동 실행, 버그는 계획·수정·검증 순서가 좋습니다.</li><li>화살표는 실제 일이 흘러가는 순서를 뜻하며, 앞 단계 결과가 뒤 단계의 입력이 됩니다.</li></ul><div class="section-term-list"><div class="section-term-list__title">이 섹션에서 나오는 용어 풀이</div><ul><li><strong>워크플로우</strong> — 여러 단계를 정해진 순서대로 진행하는 일 처리 흐름입니다.</li><li><strong>PRD</strong> — Product Requirements Document의 줄임말입니다. 만들 기능의 목적, 요구사항, 성공 기준을 적은 문서입니다.</li><li><strong>팀 모드</strong> — 여러 AI 작업자 창을 띄워 한 목표를 나누어 처리하게 하는 OMX 실행 방식입니다.</li><li><strong>$ultraqa / UltraQA</strong> — 일부러 까다로운 상황을 만들어 결과가 버티는지 확인하는 강한 품질검사 흐름입니다.</li><li><strong>검증</strong> — 결과가 정말 맞는지 테스트, 빌드, 실행 확인 등으로 증거를 모으는 단계입니다.</li></ul></div></div></section>
+<!-- 고급 오케스트레이션 -->
+<section data-section="" id="advanced-orchestration">
+<h2><span class="anchor-link">#</span>고급 오케스트레이션</h2>
+<p>대규모 엔지니어링의 경우 OMX는 복잡한 팀 구성, 혼합 CLI 작업자 및 git worktree 격리.를 지원합니다.</p>
+<h3>혼합 CLI 팀</h3>
+<p>단일 팀 내에서 다양한 AI 제공업체(Codex, Claude 및 Gemini)를 혼합하여 고유한 강점을 활용할 수 있습니다.</p>
+<div class="code-block-wrapper">
+<div class="code-block-header"><span class="code-lang">BASH</span></div>
+<pre><code># Mix Codex, Gemini, and Claude workers in one team
+export OMX_TEAM_WORKER_CLI_MAP=codex,gemini,claude
+omx team 3:executor "refactor the shared runtime docs"</code></pre>
+</div>
+<h3>팀 CLI API</h3>
+<p>모든 변형 및 조정은 안정적인 JSON-based 상태 전환을 위해 CLI 상호 운용성 API를 사용해야 합니다. 이는 자동화된 도구 및 복잡한 작업자 조정에 매우 중요합니다.</p>
+<div class="code-block-wrapper">
+<div class="code-block-header"><span class="code-lang">BASH</span></div>
+<pre><code># Create a task programmatically
+omx team api create-task --input '{"team_name":"my-team","subject":"Fix bug","description":"..."}' --json
+
+# Claim a task with versioned safety
+omx team api claim-task --input '{"team_name":"my-team","task_id":"1","worker":"worker-1"}' --json
+
+# Transition terminal task status after claiming
+omx team api transition-task-status --input '{"team_name":"my-team","task_id":"1","from":"in_progress","to":"completed","claim_token":"<token>"}' --json</token></code></pre>
+</div>
+<h3>작업 트리 격리</h3>
+<p>전용 전용 git worktree에서 팀을 실행하면 병렬 작업자가 서로의 파일을 훼손하는 것을 방지합니다. OMX는 이러한 worktree 전체에서 상태 확인을 자동으로 처리합니다.</p>
+<div class="code-block-wrapper">
+<div class="code-block-header"><span class="code-lang">BASH</span></div>
+<pre><code># Launch in a new worktree
+omx team 4:executor "feature work" --worktree=feature-branch</code></pre>
+</div>
+<div class="callout info">
+<div class="callout-title">아키텍처 통찰력</div>
+<p>OMX는 모든 작업에 대해 내구성 있는 클레임-safe 수명 주기를 유지합니다. 작업자가 실패하거나 세션이 중단된 경우 상태는 <code>.omx/state/team/</code>, 안전한 이력서를 허용합니다. <code>omx team resume &lt;team-name&gt;</code>.</p>
+</div>
+<div class="easy-note"><div class="easy-note__title">비개발자를 위한 쉬운 풀이</div><ul><li>고급 오케스트레이션은 여러 AI 도구, 여러 작업 공간, 자동 상태 전환을 섞어 큰 작업을 안정적으로 처리하는 방법입니다.</li><li>비개발자는 “여러 전문가를 동시에 움직이되, 작업 기록과 합치는 절차를 시스템이 관리한다”라고 이해하면 됩니다.</li></ul><div class="section-term-list"><div class="section-term-list__title">이 섹션에서 나오는 용어 풀이</div><ul><li><strong>오케스트레이션</strong> — 여러 작업자와 도구가 서로 엉키지 않게 순서와 역할을 조율하는 일입니다. 지휘자가 오케스트라를 지휘하는 것과 비슷합니다.</li><li><strong>혼합 공급자 팀</strong> — Codex, Claude, Gemini 같은 여러 AI 도구를 한 팀 안에서 함께 쓰는 방식입니다.</li><li><strong>Codex / Claude / Gemini</strong> — 서로 다른 AI 도구 또는 AI 실행 환경입니다. OMX는 이들을 섞어 팀처럼 쓸 수 있습니다.</li><li><strong>worktree</strong> — 하나의 Git 저장소에서 작업 공간을 여러 개로 나눈 것입니다. 여러 사람이 동시에 고쳐도 서로 파일을 덮어쓰지 않게 돕습니다.</li><li><strong>Git</strong> — 파일 변경 이력을 기록하고 되돌릴 수 있게 하는 버전 관리 도구입니다.</li><li><strong>API</strong> — 프로그램끼리 서로 기능을 호출하기 위해 정한 약속입니다.</li><li><strong>JSON</strong> — 데이터를 중괄호와 키-값 형태로 적는 형식입니다. 사람이 읽고 프로그램도 읽기 쉽습니다.</li><li><strong>상태 루트</strong> — 팀 상태 파일을 어디에 저장하고 읽을지 정하는 기준 폴더입니다.</li><li><strong>리더</strong> — 팀 전체 방향을 정하고 작업자를 배정하며 최종 결과를 검토하는 중심 역할입니다.</li><li><strong>작업자 / worker</strong> — 팀 모드에서 실제로 분석, 수정, 검증 같은 일을 맡는 개별 AI 실행 단위입니다.</li></ul></div></div></section>
+<!-- Back to top -->
+<button aria-label="맨 위로 돌아가기" class="back-to-top" id="back-to-top">
+<svg fill="none" height="20" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="20">
+<polyline points="18 15 12 9 6 15"></polyline>
+</svg>
+</button>
+<div class="search-overlay" id="search-overlay"></div>
+<script type="module">
+    import { SidebarSpy } from './js/ui/sidebarSpy.js';
+    import { SearchService } from './js/ui/searchService.js';
+    import { Accordion } from './js/ui/accordion.js';
+    import { CodeBlocks } from './js/ui/codeBlocks.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      new SidebarSpy({
+        sidebar: '.docs-sidebar',
+        content: '.docs-content',
+        links: '.sidebar-link',
+        sections: '[data-section]'
+      });
+
+      new SearchService({
+        contentSelector: '.docs-content',
+        searchInput: '#search-input',
+        results: '#search-results',
+        overlay: '#search-overlay'
+      });
+
+      new Accordion();
+      new CodeBlocks();
+
+      // Mobile Menu Logic
+      const mobileBtn = document.getElementById('mobile-menu-btn');
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      const docsMain = document.querySelector('.docs-main');
+
+      function toggleMenu() {
+        const isOpen = sidebar.classList.contains('open');
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('active');
+        mobileBtn.setAttribute('aria-expanded', String(!isOpen));
+        document.body.style.overflow = isOpen ? '' : 'hidden';
+
+        if (!isOpen) {
+          docsMain?.setAttribute('inert', '');
+          sidebar.querySelector('.sidebar-link')?.focus();
+        } else {
+          docsMain?.removeAttribute('inert');
+        }
+      }
+
+      function closeMenu() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+        mobileBtn.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+        docsMain?.removeAttribute('inert');
+        mobileBtn.focus();
+      }
+
+      mobileBtn.addEventListener('click', toggleMenu);
+      overlay.addEventListener('click', closeMenu);
+
+      // Close on link click (mobile)
+      document.querySelectorAll('.sidebar-link').forEach(link => {
+        link.addEventListener('click', () => {
+          if (window.innerWidth <= 1024) closeMenu();
+        });
+      });
+
+      // Back to top
+      const backToTop = document.getElementById('back-to-top');
+      window.addEventListener('scroll', () => {
+        backToTop.classList.toggle('visible', window.scrollY > 500);
+      });
+      backToTop.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+    });
+  </script>
+<script src="./js/ui/codeBlocks.js" type="module"></script>
+</body>
+</html>

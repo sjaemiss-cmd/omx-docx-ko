@@ -1,0 +1,1901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="oh-my-codex v0.17.3 - Multi-agent orchestration for Codex CLI: Hermes MCP bridge, canonical design workflow, plugin-mode skill discovery, adversarial UltraQA, and hardened runtime ownership.">
+  <meta name="keywords" content="OpenAI Codex, AI agents, multi-agent, orchestration, automation, CLI, developer tools, Codex CLI">
+  <meta name="author" content="oh-my-codex">
+
+  <!-- Open Graph / Social -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://yeachan-heo.github.io/oh-my-codex">
+  <meta property="og:title" content="oh-my-codex - Your codex is not alone">
+  <meta property="og:description" content="v0.17.3 is live: Hermes MCP bridge, canonical $design workflow, plugin-mode skill discovery, adversarial UltraQA guidance, and hardened runtime ownership.">
+  <meta property="og:image" content="https://yeachan-heo.github.io/oh-my-codex-website/social-preview.png">
+  <meta property="og:image:width" content="1280">
+  <meta property="og:image:height" content="640">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="oh-my-codex - Your codex is not alone">
+  <meta name="twitter:description" content="v0.17.3 is live: Hermes MCP bridge, canonical $design workflow, plugin-mode skill discovery, adversarial UltraQA guidance, and hardened runtime ownership.">
+  <meta name="twitter:image" content="https://yeachan-heo.github.io/oh-my-codex-website/social-preview.png">
+
+  <title>oh-my-codex - Your codex is not alone</title>
+
+  <!-- Preconnect to external resources -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <!-- Critical CSS - Inline for faster FCP -->
+  <style>
+    /* Critical above-fold styles */
+    :root {
+      --accent-color: #10a37f;
+      --accent-color-light: #34d399;
+      --accent-color-dark: #059669;
+      --accent-color-rgb: 16, 163, 127;
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #111111;
+      --bg-tertiary: #1a1a1a;
+      --text-primary: #ffffff;
+      --text-secondary: #a1a1aa;
+      --text-tertiary: #71717a;
+      --border-color: #27272a;
+      --font-family-sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-family-sans);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Hero critical styles */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      padding: 2rem 1rem;
+    }
+
+    .hero__content {
+      max-width: 1200px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      z-index: 1;
+    }
+
+    @media (max-width: 968px) {
+      .hero__content {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 2rem;
+      }
+    }
+
+    .hero__title {
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+
+    .hero__title.pixel-font {
+      font-size: clamp(1.5rem, 4vw, 2.5rem) !important;
+      line-height: 1.4 !important;
+    }
+
+    .hero__tagline {
+      font-size: clamp(1.25rem, 3vw, 1.75rem);
+      font-weight: 500;
+      margin-bottom: 2rem;
+    }
+
+    /* Gradient text animation */
+    .gradient-text {
+      background: linear-gradient(135deg, #34d399 0%, #10a37f 50%, #ffffff 100%);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradientShift 4s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    /* Skeleton loading state */
+    .skeleton {
+      background: linear-gradient(90deg, #27272a 25%, #3f3f46 50%, #27272a 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 4px;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+
+  <!-- Main stylesheets -->
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+
+  <!-- Page-specific styles -->
+  <style>
+    /* Navigation */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1rem 2rem;
+      background: linear-gradient(180deg, rgba(10, 10, 15, 0.9), rgba(10, 10, 15, 0.72));
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .nav.scrolled {
+      background: rgba(10, 10, 15, 0.82);
+      border-bottom-color: rgba(16, 163, 127, 0.18);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+    }
+
+    .nav.hidden {
+      transform: translateY(-100%);
+    }
+
+    .nav__inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav__logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 700;
+      font-size: 1.125rem;
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+
+    .nav__logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--accent-color), var(--accent-color-dark));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+      .nav__links {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+      }
+
+    .nav__link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .nav__link:hover {
+      color: var(--text-primary);
+    }
+
+    .nav__link--docs {
+      color: var(--accent-color-light);
+    }
+
+    /* Mobile hamburger button */
+    .nav__hamburger {
+      position: relative;
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      width: 44px;
+      height: 44px;
+      padding: 10px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      z-index: 1001;
+    }
+
+    .nav__hamburger-line {
+      width: 100%;
+      height: 2px;
+      background: var(--text-primary);
+      transition: all 0.3s ease;
+      border-radius: 2px;
+    }
+
+    /* Hamburger animation to X */
+    .nav__hamburger.active .nav__hamburger-line:nth-child(1) {
+      transform: translateY(7px) rotate(45deg);
+    }
+
+    .nav__hamburger.active .nav__hamburger-line:nth-child(2) {
+      opacity: 0;
+    }
+
+    .nav__hamburger.active .nav__hamburger-line:nth-child(3) {
+      transform: translateY(-7px) rotate(-45deg);
+    }
+
+    @media (max-width: 768px) {
+      .nav__hamburger {
+        display: flex;
+      }
+
+      .nav__links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 280px;
+        height: 100vh;
+        background: var(--bg-secondary);
+        border-left: 1px solid var(--border-color);
+        flex-direction: column;
+        padding: 80px 2rem 2rem;
+        gap: 0;
+        transition: right 0.3s ease;
+        z-index: 1000;
+        overflow-y: auto;
+      }
+
+      .nav__links.active {
+        right: 0;
+      }
+
+      .nav__link {
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 1rem;
+      }
+
+      .nav__links .btn {
+        margin-top: 1rem;
+        width: 100%;
+        justify-content: center;
+      }
+
+      /* Mobile overlay */
+      .nav__overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+        z-index: 999;
+      }
+
+      .nav__overlay.active {
+        opacity: 1;
+        visibility: visible;
+      }
+    }
+
+    /* Hero section */
+    .hero {
+      padding-top: 100px; /* Account for fixed nav */
+      background:
+        radial-gradient(ellipse at 18% 18%, rgba(59, 130, 246, 0.12) 0%, transparent 35%),
+        radial-gradient(ellipse at 50% 0%, rgba(16, 163, 127, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 50%, rgba(16, 163, 127, 0.08) 0%, transparent 40%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 24%),
+        var(--bg-primary);
+    }
+
+    .hero__text {
+      opacity: 0;
+      animation: fadeInUp 0.8s ease forwards;
+    }
+
+    .hero__text > *:nth-child(1) { animation-delay: 0.1s; }
+    .hero__text > *:nth-child(2) { animation-delay: 0.2s; }
+    .hero__text > *:nth-child(3) { animation-delay: 0.3s; }
+    .hero__text > *:nth-child(4) { animation-delay: 0.4s; }
+
+    .hero__text > * {
+      opacity: 0;
+      animation: fadeInUp 0.6s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero__description {
+      font-size: 1.125rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      max-width: 560px;
+    }
+
+    @media (max-width: 968px) {
+      .hero__description {
+        margin: 0 auto 2rem;
+      }
+    }
+
+    .hero__cta {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 968px) {
+      .hero__cta {
+        justify-content: center;
+      }
+    }
+
+    .hero-stats {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 968px) {
+      .hero-stats {
+        justify-content: center;
+      }
+    }
+
+    .hero-stat-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.45rem 0.95rem;
+      background: rgba(19, 24, 34, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+      white-space: nowrap;
+      backdrop-filter: blur(12px);
+    }
+
+    .hero-stat-badge:hover {
+      color: var(--text-primary);
+      border-color: var(--accent-color);
+      box-shadow: 0 0 10px -2px rgba(16, 163, 127, 0.4), 0 0 20px -5px rgba(16, 163, 127, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .hero-stat-badge__icon {
+      margin-right: 0.4rem;
+      color: var(--accent-color-light);
+    }
+
+    .hero-stat-badge__value {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-right: 0.2rem;
+    }
+
+    .hero-stat-badge__label {
+      color: var(--text-secondary);
+    }
+
+    .hero-command-deck {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(220px, 0.85fr);
+      gap: 1rem;
+      align-items: stretch;
+    }
+
+    .hero-terminal {
+      position: relative;
+      overflow: hidden;
+      border-radius: 22px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 24%),
+        rgba(12, 15, 24, 0.82);
+      box-shadow:
+        0 24px 50px rgba(0, 0, 0, 0.32),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      animation: depthPulse 8s ease-in-out infinite;
+    }
+
+    .hero-terminal::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 20%, rgba(255, 255, 255, 0.08) 50%, transparent 80%);
+      transform: translateX(-100%);
+      animation: shimmer 6s ease-in-out infinite;
+      opacity: 0.45;
+      pointer-events: none;
+    }
+
+    .hero-terminal__bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.9rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .hero-terminal__dots {
+      display: flex;
+      gap: 0.45rem;
+    }
+
+    .hero-terminal__dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .hero-terminal__dots span:nth-child(1) { background: #fb7185; }
+    .hero-terminal__dots span:nth-child(2) { background: #fbbf24; }
+    .hero-terminal__dots span:nth-child(3) { background: #34d399; }
+
+    .hero-terminal__label {
+      font-family: var(--font-family-mono);
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .hero-terminal__body {
+      padding: 1.1rem 1rem 1.25rem;
+      font-family: var(--font-family-mono);
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-terminal__body pre {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      border: 0;
+      font-size: 0.92rem;
+      line-height: 1.75;
+      color: #d7f7ee;
+      overflow: auto;
+    }
+
+    .hero-command-list {
+      display: grid;
+      gap: 0.85rem;
+    }
+
+    .hero-command-card {
+      padding: 1rem 1.05rem;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(10, 15, 22, 0.8);
+      box-shadow: 0 18px 32px rgba(0, 0, 0, 0.24);
+    }
+
+    .hero-command-card__title {
+      display: block;
+      margin-bottom: 0.35rem;
+      font-family: var(--font-family-mono);
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-color-light);
+    }
+
+    .hero-command-card p {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .hero-command-card code {
+      display: inline-block;
+      margin-bottom: 0.5rem;
+      color: #e5fff8;
+      background: rgba(16, 163, 127, 0.12);
+    }
+
+    @media (max-width: 968px) {
+      .hero-command-deck {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Hero illustration */
+    .hero__visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      animation: fadeInScale 1s ease 0.5s forwards;
+      perspective: 1600px;
+    }
+
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .hero__illustration {
+      width: 100%;
+      max-width: 1000px;
+      position: relative;
+      transform-style: preserve-3d;
+    }
+
+    .hero__illustration img {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 30px 50px rgba(0, 0, 0, 0.34));
+    }
+
+    .hero__illustration::before,
+    .hero__illustration::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(18px);
+      animation: orbitFloat 10s ease-in-out infinite;
+    }
+
+    .hero__illustration::before {
+      width: 140px;
+      height: 140px;
+      top: 5%;
+      right: 18%;
+      background: rgba(16, 163, 127, 0.22);
+    }
+
+    .hero__illustration::after {
+      width: 110px;
+      height: 110px;
+      bottom: 14%;
+      left: 12%;
+      background: rgba(59, 130, 246, 0.18);
+      animation-delay: -3s;
+    }
+
+    /* Section styles */
+    .section {
+      padding: 6rem 1rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .section__header {
+      text-align: center;
+      margin-bottom: 4rem;
+      max-width: 760px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .section__title {
+      font-size: clamp(2rem, 4vw, 2.5rem);
+      font-weight: 700;
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .section__subtitle {
+      font-size: 1.125rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Features section */
+    .features-section {
+      background: var(--bg-secondary);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      align-items: stretch;
+    }
+
+    .feature-card {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 24%),
+        rgba(17, 20, 31, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 2rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      min-height: 100%;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-color), var(--accent-color-light));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 26px 56px rgba(0, 0, 0, 0.34);
+      border-color: var(--accent-color);
+    }
+
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+
+    .feature-card__icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, rgba(5, 150, 105, 0.95), rgba(16, 163, 127, 1));
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 16px 28px rgba(16, 163, 127, 0.24);
+    }
+
+    .feature-card__title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: var(--text-primary);
+    }
+
+    .feature-card__description {
+      font-size: 0.9375rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Installation section */
+    .install-section {
+      background: var(--bg-primary);
+    }
+
+    .install-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .install-step__label {
+      font-size: 0.875rem;
+      color: var(--text-tertiary);
+      margin-bottom: 0.75rem;
+      padding-left: 0.5rem;
+    }
+
+    .code-block {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .code-block__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .code-block__dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .code-block__dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .code-block__dot--red { background: #ff5f56; }
+    .code-block__dot--yellow { background: #ffbd2e; }
+    .code-block__dot--green { background: #27c93f; }
+
+    .code-block__copy {
+      padding: 0.25rem 0.75rem;
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      background: transparent;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .code-block__copy:hover {
+      color: var(--text-primary);
+      border-color: var(--accent-color);
+    }
+
+    .code-block__copy.copied {
+      color: #22c55e;
+      border-color: #22c55e;
+    }
+
+    .code-block__content {
+      padding: 1.25rem;
+      font-family: var(--font-family-mono);
+      font-size: 0.9rem;
+      overflow-x: auto;
+    }
+
+    .code-block__content code {
+      color: var(--text-primary);
+      background: none;
+      padding: 0;
+    }
+
+    .code-block__content .keyword { color: #ff7b72; }
+    .code-block__content .string { color: #a5d6ff; }
+    .code-block__content .comment { color: #8b949e; }
+
+    /* Agent tiers section */
+    .agents-section {
+      background: var(--bg-secondary);
+    }
+
+    .tiers-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 1200px) {
+      .tiers-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .tiers-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .tier-card {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 24%),
+        rgba(17, 20, 31, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+    }
+
+    .tier-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 28px 58px rgba(0, 0, 0, 0.34);
+    }
+
+    .tier-card--build:hover { border-color: rgba(59, 130, 246, 0.5); }
+    .tier-card--review:hover { border-color: rgba(139, 92, 246, 0.5); }
+    .tier-card--domain:hover { border-color: rgba(245, 158, 11, 0.5); }
+    .tier-card--product:hover { border-color: rgba(34, 197, 94, 0.5); }
+
+    .tier-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+    }
+
+    .tier-card--build::before { background: #3b82f6; }
+    .tier-card--review::before { background: #8b5cf6; }
+    .tier-card--domain::before { background: #f59e0b; }
+    .tier-card--product::before { background: #22c55e; }
+
+    .tier-card__header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .tier-card__badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .tier-card--build .tier-card__badge {
+      background: rgba(59, 130, 246, 0.15);
+      color: #3b82f6;
+    }
+
+    .tier-card--review .tier-card__badge {
+      background: rgba(139, 92, 246, 0.15);
+      color: #8b5cf6;
+    }
+
+    .tier-card--domain .tier-card__badge {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+    }
+
+    .tier-card--product .tier-card__badge {
+      background: rgba(34, 197, 94, 0.15);
+      color: #22c55e;
+    }
+
+    .tier-card__title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .tier-card__agents {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      flex-grow: 1;
+      align-content: flex-start;
+    }
+
+    .agent-tag {
+      padding: 0.375rem 0.75rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      font-family: var(--font-family-mono);
+      transition: all 0.2s ease;
+    }
+
+    .agent-tag:hover {
+      border-color: var(--accent-color);
+      color: var(--text-primary);
+    }
+
+    /* Lane-specific tag hover colors */
+    .tier-card--build .agent-tag:hover {
+      border-color: #3b82f6;
+      color: #eff6ff;
+    }
+
+    .tier-card--review .agent-tag:hover {
+      border-color: #8b5cf6;
+      color: #f5f3ff;
+    }
+
+    .tier-card--domain .agent-tag:hover {
+      border-color: #f59e0b;
+      color: #fffbeb;
+    }
+
+    .tier-card--product .agent-tag:hover {
+      border-color: #22c55e;
+      color: #f0fdf4;
+    }
+
+    /* Skills table */
+    .skills-section {
+      background: var(--bg-primary);
+    }
+
+    .skills-table-wrapper {
+      overflow-x: auto;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      background: var(--bg-secondary);
+    }
+
+    .skills-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9375rem;
+    }
+
+    .skills-table th,
+    .skills-table td {
+      padding: 1rem 1.5rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .skills-table th {
+      background: var(--bg-tertiary);
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .skills-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .skills-table tr:hover td {
+      background: rgba(16, 163, 127, 0.05);
+    }
+
+    .skills-table code {
+      background: rgba(16, 163, 127, 0.15);
+      color: var(--accent-color-light);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-family: var(--font-family-mono);
+      font-size: 0.875rem;
+    }
+
+    .skills-table td:nth-child(3) {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    .release-section::before,
+    .features-section::before,
+    .agents-section::before,
+    .skills-section::before {
+      content: '';
+      position: absolute;
+      inset: 1.5rem 1rem auto;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(16, 163, 127, 0.28), transparent);
+      pointer-events: none;
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
+      padding: 4rem 1rem 2rem;
+    }
+
+    .footer__inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .footer__content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .footer__links {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .footer__link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9375rem;
+      transition: color 0.2s ease;
+    }
+
+    .footer__link:hover {
+      color: var(--accent-color);
+    }
+
+    .footer__bottom {
+      text-align: center;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .footer__tagline {
+      color: var(--text-tertiary);
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .footer__copyright {
+      color: var(--text-tertiary);
+      font-size: 0.875rem;
+    }
+
+    .release-character img {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(16, 19, 28, 0.82);
+      animation: float 7s ease-in-out infinite;
+    }
+
+    @media (max-width: 1100px) {
+      .hero-command-deck {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 968px) {
+      .hero {
+        min-height: auto;
+        padding-bottom: 4rem;
+      }
+
+      .hero__text,
+      .hero__visual {
+        max-width: 720px;
+        margin: 0 auto;
+      }
+
+      .hero-command-list {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav {
+        padding: 0.85rem 1rem;
+      }
+
+      .section {
+        padding: 4.5rem 1rem;
+      }
+
+      .hero-command-list {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-terminal__body pre {
+        font-size: 0.84rem;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .hero-stats {
+        gap: 0.6rem;
+      }
+
+      .hero-stat-badge {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .hero__cta {
+        flex-direction: column;
+      }
+
+      .hero__cta .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav glass" id="nav">
+    <div class="nav__inner">
+      <a href="#hero" class="nav__logo" aria-label="oh-my-codex home">
+        <div class="nav__logo-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="4 17 10 11 4 5"></polyline>
+            <line x1="12" y1="19" x2="20" y2="19"></line>
+          </svg>
+        </div>
+        <span>oh-my-codex</span>
+      </a>
+
+      <div class="nav__links" id="navLinks">
+        <a href="#release" class="nav__link">What's New</a>
+        <a href="#team-deep-dive" class="nav__link">Team</a>
+        <a href="#features" class="nav__link">Features</a>
+        <a href="docs.html" class="nav__link nav__link--docs">Docs</a>
+        <a href="https://omx.vibetip.help" class="nav__link nav__link--docs" target="_blank" rel="noopener noreferrer">Vibetip Docs</a>
+        <a href="#installation" class="nav__link">Installation</a>
+        <a href="#agents" class="nav__link">Agents</a>
+        <a href="#skills" class="nav__link">Skills</a>
+        <a href="#discord-integration" class="nav__link">Discord</a>
+        <a href="#openclaw-integration" class="nav__link">OpenClaw</a>
+        <a href="#telegram-integration" class="nav__link">Telegram</a>
+        <a href="https://github.com/Yeachan-Heo/oh-my-codex" class="btn btn--secondary btn--sm" target="_blank" rel="noopener noreferrer" aria-label="View on GitHub">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+          </svg>
+          GitHub
+        </a>
+      </div>
+
+      <button class="nav__hamburger" id="navHamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span class="nav__hamburger-line"></span>
+        <span class="nav__hamburger-line"></span>
+        <span class="nav__hamburger-line"></span>
+      </button>
+    </div>
+    <div class="nav__overlay" id="navOverlay"></div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero" id="hero">
+    <div class="hero-glow-container">
+      <div class="hero-glow-blob hero-glow-blob--1"></div>
+      <div class="hero-glow-blob hero-glow-blob--2"></div>
+    </div>
+    <div class="hero__content">
+      <div class="scanlines"></div>
+      <div class="hero__text">
+        <h1 class="hero__title pixel-font glow-text-pulse">
+          <span class="gradient-text">oh-my-codex</span>
+        </h1>
+        <p class="hero__tagline">Your codex is not alone.<span class="terminal-cursor"></span></p>
+        <p class="hero__description">
+          Multi-agent orchestration layer for OpenAI Codex CLI. Build faster with staged team pipelines, persistent memory/state MCP servers, and extensible hooks.
+        </p>
+
+        <div class="hero-stats">
+          <span class="hero-stat-badge glow-accent">
+            <span class="hero-stat-badge__icon">🚀</span>
+            <span class="hero-stat-badge__value">v0.17.3</span>
+            <span class="hero-stat-badge__label">Latest Release</span>
+          </span>
+          <a href="https://github.com/Yeachan-Heo/oh-my-codex" class="hero-stat-badge hero-stat-badge--dynamic" target="_blank">
+            <span class="hero-stat-badge__icon">&#9733;</span>
+            <span class="hero-stat-badge__value" data-stat="github-stars">—</span>
+            <span class="hero-stat-badge__label">Stars</span>
+          </a>
+          <a href="https://www.npmjs.com/package/oh-my-codex" class="hero-stat-badge hero-stat-badge--dynamic" target="_blank">
+            <span class="hero-stat-badge__icon">&#8595;</span>
+            <span class="hero-stat-badge__value" data-stat="npm-downloads">—</span>
+            <span class="hero-stat-badge__label">Downloads/mo</span>
+          </a>
+          <span class="hero-stat-badge">
+            <span class="hero-stat-badge__icon">⚡</span>
+            <span class="hero-stat-badge__value">33</span>
+            <span class="hero-stat-badge__label">Prompts</span>
+          </span>
+          <span class="hero-stat-badge">
+            <span class="hero-stat-badge__icon">🎯</span>
+            <span class="hero-stat-badge__value">36</span>
+            <span class="hero-stat-badge__label">Skills</span>
+          </span>
+          <span class="hero-stat-badge">
+            <span class="hero-stat-badge__icon">🤝</span>
+            <span class="hero-stat-badge__label">Team Mode</span>
+          </span>
+          <span class="hero-stat-badge">
+            <span class="hero-stat-badge__icon">🔌</span>
+            <span class="hero-stat-badge__value">5</span>
+            <span class="hero-stat-badge__label">MCP Servers</span>
+          </span>
+        </div>
+
+        <div class="hero__cta">
+          <a href="#installation" class="btn btn--primary btn--lg" aria-label="Get started with oh-my-codex">
+            Get Started
+          </a>
+          <a href="docs.html" class="btn btn--secondary btn--lg" aria-label="Read oh-my-codex documentation">
+            Read Docs
+          </a>
+          <a href="https://omx.vibetip.help" class="btn btn--secondary btn--lg" target="_blank" rel="noopener noreferrer" aria-label="Read Vibetip documentation">
+            Vibetip Docs
+          </a>
+          <a href="https://github.com/Yeachan-Heo/oh-my-codex" class="btn btn--secondary btn--lg" target="_blank" rel="noopener noreferrer" aria-label="View on GitHub">
+            View on GitHub
+          </a>
+        </div>
+
+        <div class="hero-command-deck" data-reveal="fade-up">
+          <div class="hero-terminal glass tilt-3d-polish">
+            <div class="hero-terminal__bar">
+              <div class="hero-terminal__dots" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <span class="hero-terminal__label">Recommended Workflow</span>
+            </div>
+            <div class="hero-terminal__body">
+              <pre><code># 1. Launch interactive Codex session
+$ omx --madmax --high
+
+# 2. Use keywords inside Codex for workflows
+$deep-interview "clarify the auth change"
+$ralplan "approve the implementation plan"
+$ralph "carry the plan to completion"</code></pre>
+            </div>
+          </div>
+
+          <div class="hero-command-list">
+            <article class="hero-command-card glass-subtle tilt-3d-polish">
+              <span class="hero-command-card__title">Launch</span>
+              <code>omx --madmax --high</code>
+              <p>Start the interactive Codex session with recommended settings for trusted environments.</p>
+            </article>
+            <article class="hero-command-card glass-subtle tilt-3d-polish">
+              <span class="hero-command-card__title">Clarify</span>
+              <code>$deep-interview</code>
+              <p>Use inside Codex when intent or boundaries are still unclear. Socratic clarification before planning.</p>
+            </article>
+            <article class="hero-command-card glass-subtle tilt-3d-polish">
+              <span class="hero-command-card__title">Execute</span>
+              <code>$ralph</code> or <code>$team</code>
+              <p>Choose <code>$ralph</code> for persistent completion loops, or <code>$team</code> for coordinated parallel execution.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero__visual tilt-3d-polish">
+        <div class="hero__illustration tilt-3d-polish">
+          <img src="omx-character-nobg.png" alt="oh-my-codex character illustration" loading="eager" class="tilt-3d-child">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Release Highlights Section -->
+  <section class="section release-section" id="release" data-reveal>
+    <div class="section__header">
+      <h2 class="section__title">v0.17.3</h2>
+      <p class="section__subtitle">Released: <strong>May 12, 2026</strong> &mdash; Hermes MCP, the canonical <code>$design</code> workflow, plugin-mode skill discovery, adversarial UltraQA guidance, Windows hook hardening, tmux ownership checks, startup-shell isolation, committed project memory, and Ultragoal reconciliation.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card pixel-border glass tilt-3d-polish">
+        <div class="feature-card__icon tilt-3d-child">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Hermes MCP Bridge</h3>
+        <p class="feature-card__description">A bounded, opt-in coordination bridge exposes audited session status, follow-up dispatch, safe artifact reads, log tails, and final reports without leaking tmux scrollback or raw private state.</p>
+      </div>
+
+      <div class="feature-card pixel-border glass tilt-3d-polish">
+        <div class="feature-card__icon tilt-3d-child">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="6" y="6" width="12" height="12" rx="2"></rect>
+            <path d="M3 12h3M18 12h3M12 3v3M12 18v3"></path>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Canonical $design Workflow</h3>
+        <p class="feature-card__description"><code>DESIGN.md</code> and mirrored <code>$design</code> skill guidance now define the durable product/UI decision surface, replacing the older frontend shortcut with a repo-local source of truth.</p>
+      </div>
+
+      <div class="feature-card pixel-border glass tilt-3d-polish">
+        <div class="feature-card__icon tilt-3d-child">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 6v6l4 2"></path>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Plugin-Mode Discovery</h3>
+        <p class="feature-card__description">Local Codex plugin marketplace setup exposes OMX skills through plugin discovery, verifies the plugin cache, and ships plugin-scoped MCP metadata including Hermes.</p>
+      </div>
+
+      <div class="feature-card pixel-border glass tilt-3d-polish">
+        <div class="feature-card__icon tilt-3d-child">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v4"></path>
+            <path d="M12 18v4"></path>
+            <path d="M4.93 4.93l2.83 2.83"></path>
+            <path d="M16.24 16.24l2.83 2.83"></path>
+            <path d="M2 12h4"></path>
+            <path d="M18 12h4"></path>
+            <path d="M4.93 19.07l2.83-2.83"></path>
+            <path d="M16.24 7.76l2.83-2.83"></path>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Adversarial UltraQA</h3>
+        <p class="feature-card__description"><code>$ultraqa</code> now requires hostile scenario modeling, prompt-injection attempts, interrupt/cancel/resume coverage, stale-state checks, cleanup evidence, and reproducible verdicts.</p>
+      </div>
+
+      <div class="feature-card pixel-border glass tilt-3d-polish">
+        <div class="feature-card__icon tilt-3d-child">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Runtime Ownership Hardening</h3>
+        <p class="feature-card__description">Windows native hooks, tmux continuation ownership, startup shell isolation, committed project memory loading, and Ultragoal goal reconciliation now match current OMX runtime contracts.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team Deep Dive Section -->
+  <section class="section release-section" id="team-deep-dive" data-reveal>
+    <div class="section__header">
+      <h2 class="section__title">$team &mdash; Worktree-First Parallel Execution</h2>
+      <p class="section__subtitle">The core OMX skill. Since v0.13.1, every team worker runs in an isolated git worktree by default &mdash; no flags needed, no merge conflicts, automatic integration.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card pixel-border glass tilt-3d-polish">
+        <div class="feature-card__icon tilt-3d-child">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 3v12"></path>
+            <circle cx="18" cy="6" r="3"></circle>
+            <circle cx="6" cy="18" r="3"></circle>
+            <path d="M18 9a9 9 0 0 1-9 9"></path>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Automatic Worktree Isolation</h3>
+        <p class="feature-card__description">Every worker gets a dedicated git worktree at <code>.omx/team/&lt;name&gt;/worktrees/worker-N</code>. No <code>--worktree</code> flag needed &mdash; it's the default. Workers write to isolated detached branches; the leader workspace stays clean.</p>
+      </div>
+
+      <div class="feature-card pixel-border glass tilt-3d-polish">
+        <div class="feature-card__icon tilt-3d-child">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6"></polyline>
+            <polyline points="8 6 2 12 8 18"></polyline>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Incremental Merge Tracking</h3>
+        <p class="feature-card__description">The leader continuously integrates worker commits via merge, cherry-pick, or cross-worker rebase strategies. Conflicts are detected early and reported in <code>integration-report.md</code>. Auto-commit ensures no work is lost.</p>
+      </div>
+
+      <div class="feature-card pixel-border glass tilt-3d-polish">
+        <div class="feature-card__icon tilt-3d-child">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Mixed-Provider Teams</h3>
+        <p class="feature-card__description">Run Codex, Claude, and Gemini workers side-by-side with <code>OMX_TEAM_WORKER_CLI_MAP</code>. Each worker gets its own worktree regardless of provider. Full staged pipeline: plan &rarr; exec &rarr; verify &rarr; fix.</p>
+      </div>
+    </div>
+
+    <div style="max-width: 720px; margin: 3rem auto 0;">
+      <div class="hero-terminal glass tilt-3d-polish">
+        <div class="hero-terminal__bar">
+          <div class="hero-terminal__dots" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <span class="hero-terminal__label">$team &mdash; Worktree Lifecycle</span>
+        </div>
+        <div class="hero-terminal__body">
+          <pre><code><span style="color: var(--text-tertiary);"># Use $team inside Codex (recommended)</span>
+$team 3:executor "refactor auth module"
+Team started: refactor-auth-module
+workers: 3 (worktrees: automatic, detached)
+
+<span style="color: var(--text-tertiary);"># Advanced: CLI operator surface</span>
+omx team 3:executor "refactor auth module"
+omx team status refactor-auth-module
+
+<span style="color: var(--text-tertiary);"># Mixed providers with worktrees</span>
+OMX_TEAM_WORKER_CLI_MAP=codex,claude,gemini \
+  omx team 3:executor "full-stack implementation"</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="section features-section" id="features" data-reveal>
+    <div class="section__header">
+      <h2 class="section__title">Features</h2>
+      <p class="section__subtitle">Everything you need for autonomous software development with OpenAI Codex CLI</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card pixel-border glass tilt-3d-polish">
+        <div class="feature-card__icon tilt-3d-child">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Role Prompts</h3>
+        <p class="feature-card__description">33 specialized prompts via <code>/prompts:name</code> for targeted expertise across implementation, review, domain, and coordination lanes.</p>
+      </div>
+
+      <div class="feature-card pixel-border glass tilt-3d-polish">
+        <div class="feature-card__icon tilt-3d-child">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Workflow Skills</h3>
+        <p class="feature-card__description">36 workflow skills and command surfaces via <code>$name</code> syntax for autopilot, team orchestration, planning, recovery, and QA cycles.</p>
+      </div>
+
+      <div class="feature-card pixel-border glass tilt-3d-polish">
+        <div class="feature-card__icon tilt-3d-child">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Team Orchestration</h3>
+        <p class="feature-card__description">Isolated parallel execution with automatic git worktrees. Workers get dedicated worktrees by default &mdash; zero merge conflicts, automatic commit integration, and incremental merge tracking.</p>
+      </div>
+
+      <div class="feature-card pixel-border glass tilt-3d-polish">
+        <div class="feature-card__icon tilt-3d-child">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">MCP Servers</h3>
+        <p class="feature-card__description">State, memory, code intelligence, and trace servers (5 total) for persistent context and cross-session learning.</p>
+      </div>
+
+      <div class="feature-card pixel-border glass tilt-3d-polish">
+        <div class="feature-card__icon tilt-3d-child">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Staged Pipeline</h3>
+        <p class="feature-card__description">plan → prd → exec → verify → fix lifecycle for structured, evidence-based development workflows.</p>
+      </div>
+
+      <div class="feature-card pixel-border glass tilt-3d-polish">
+        <div class="feature-card__icon tilt-3d-child">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="1" x2="12" y2="23"></line>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Launch Profiles</h3>
+        <p class="feature-card__description">--yolo, --high, --xhigh, --madmax modes for granular control over reasoning effort and execution intensity.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Installation Section -->
+  <section class="section install-section" id="installation" data-reveal>
+    <div class="section__header">
+      <h2 class="section__title">Installation</h2>
+      <p class="section__subtitle">Get up and running in seconds with npm</p>
+    </div>
+
+    <div class="install-steps">
+      <div class="install-step">
+        <div class="install-step__label">Step 1: Install via npm</div>
+        <div class="code-block glass">
+          <div class="code-block__header">
+            <div class="code-block__dots">
+              <span class="code-block__dot code-block__dot--red"></span>
+              <span class="code-block__dot code-block__dot--yellow"></span>
+              <span class="code-block__dot code-block__dot--green"></span>
+            </div>
+            <button class="code-block__copy" data-copy="npm install -g @openai/codex oh-my-codex">Copy</button>
+          </div>
+          <div class="code-block__content">
+            <code>npm install -g @openai/codex oh-my-codex</code>
+          </div>
+        </div>
+      </div>
+
+      <div class="install-step">
+        <div class="install-step__label">Step 2: Setup and verify</div>
+        <div class="code-block glass">
+          <div class="code-block__header">
+            <div class="code-block__dots">
+              <span class="code-block__dot code-block__dot--red"></span>
+              <span class="code-block__dot code-block__dot--yellow"></span>
+              <span class="code-block__dot code-block__dot--green"></span>
+            </div>
+            <button class="code-block__copy" data-copy="omx setup && omx doctor">Copy</button>
+          </div>
+          <div class="code-block__content">
+            <code>omx setup && omx doctor</code>
+          </div>
+        </div>
+      </div>
+
+      <div class="install-step">
+        <div class="install-step__label">Step 3: Launch and work</div>
+        <div class="code-block glass">
+          <div class="code-block__header">
+            <div class="code-block__dots">
+              <span class="code-block__dot code-block__dot--red"></span>
+              <span class="code-block__dot code-block__dot--yellow"></span>
+              <span class="code-block__dot code-block__dot--green"></span>
+            </div>
+            <button class="code-block__copy" data-copy="omx --madmax --high">Copy</button>
+          </div>
+          <div class="code-block__content">
+            <code>omx --madmax --high</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Agent Tiers Section -->
+  <section class="section agents-section" id="agents" data-reveal>
+    <div class="section__header">
+      <h2 class="section__title">Agent Tiers</h2>
+      <p class="section__subtitle">33 specialized prompts organized by domain, review depth, and orchestration responsibility</p>
+    </div>
+
+    <div class="tiers-grid">
+      <div class="tier-card tier-card--build glass tilt-3d-polish">
+        <div class="tier-card__header">
+          <span class="tier-card__badge">Build/Analysis</span>
+        </div>
+        <h3 class="tier-card__title">Core Development</h3>
+        <div class="tier-card__agents">
+          <span class="agent-tag">architect</span>
+          <span class="agent-tag">planner</span>
+          <span class="agent-tag">executor</span>
+          <span class="agent-tag">debugger</span>
+          <span class="agent-tag">verifier</span>
+          <span class="agent-tag">explore</span>
+        </div>
+      </div>
+
+      <div class="tier-card tier-card--review glass tilt-3d-polish">
+        <div class="tier-card__header">
+          <span class="tier-card__badge">Review Lane</span>
+        </div>
+        <h3 class="tier-card__title">Quality Assurance</h3>
+        <div class="tier-card__agents">
+          <span class="agent-tag">style-reviewer</span>
+          <span class="agent-tag">quality-reviewer</span>
+          <span class="agent-tag">api-reviewer</span>
+          <span class="agent-tag">security-reviewer</span>
+          <span class="agent-tag">performance-reviewer</span>
+        </div>
+      </div>
+
+      <div class="tier-card tier-card--domain glass tilt-3d-polish">
+        <div class="tier-card__header">
+          <span class="tier-card__badge">Specialists</span>
+        </div>
+        <h3 class="tier-card__title">Domain Experts</h3>
+        <div class="tier-card__agents">
+          <span class="agent-tag">dependency-expert</span>
+          <span class="agent-tag">test-engineer</span>
+          <span class="agent-tag">build-fixer</span>
+          <span class="agent-tag">designer</span>
+          <span class="agent-tag">writer</span>
+          <span class="agent-tag">qa-tester</span>
+        </div>
+      </div>
+
+      <div class="tier-card tier-card--product glass tilt-3d-polish">
+        <div class="tier-card__header">
+          <span class="tier-card__badge">Product</span>
+        </div>
+        <h3 class="tier-card__title">Product Strategy</h3>
+        <div class="tier-card__agents">
+          <span class="agent-tag">product-manager</span>
+          <span class="agent-tag">ux-researcher</span>
+          <span class="agent-tag">product-analyst</span>
+          <span class="agent-tag">information-architect</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Skills Section -->
+  <section class="section skills-section" id="skills" data-reveal>
+    <div class="section__header">
+      <h2 class="section__title">Skills</h2>
+      <p class="section__subtitle">Repeatable workflows triggered by keywords or $syntax</p>
+    </div>
+
+    <div class="skills-table-wrapper">
+      <table class="skills-table">
+        <thead>
+          <tr>
+            <th>Keyword</th>
+            <th>Skill Name</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>autopilot</code></td>
+            <td>autopilot</td>
+            <td>Full autonomous execution from idea to working code</td>
+          </tr>
+          <tr>
+            <td><code>ralph</code></td>
+            <td>ralph</td>
+            <td>Self-referential loop with verifier verification until completion</td>
+          </tr>
+          <tr>
+            <td><code>ulw</code></td>
+            <td>ultrawork</td>
+            <td>Maximum parallelism with parallel agent orchestration</td>
+          </tr>
+          <tr>
+            <td><code>team</code></td>
+            <td>team</td>
+            <td>N coordinated agents using Codex CLI native teams</td>
+          </tr>
+          <tr>
+            <td><code>plan</code></td>
+            <td>plan</td>
+            <td>Strategic planning with consensus and review modes</td>
+          </tr>
+          <tr>
+            <td><code>research</code></td>
+            <td>research</td>
+            <td>Parallel scientist agents for comprehensive research</td>
+          </tr>
+          <tr>
+            <td><code>cancel</code></td>
+            <td>cancel</td>
+            <td>Stop execution modes and clear active state</td>
+          </tr>
+          <tr>
+            <td><code>tdd</code></td>
+            <td>tdd</td>
+            <td>Test-first development with red-green-refactor cycle</td>
+          </tr>
+          <tr>
+            <td><code>build-fix</code></td>
+            <td>build-fix</td>
+            <td>Fix build errors, type errors, and toolchain failures</td>
+          </tr>
+          <tr>
+            <td><code>code-review</code></td>
+            <td>code-review</td>
+            <td>Comprehensive code review across all quality dimensions</td>
+          </tr>
+          <tr>
+            <td><code>security-review</code></td>
+            <td>security-review</td>
+            <td>Security audit focusing on vulnerabilities and trust boundaries</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Discord Integration Section -->
+  <section class="section integrations-section" id="discord-integration" data-reveal>
+    <div class="section__header">
+      <h2 class="section__title">Discord Integration</h2>
+      <p class="section__subtitle">Seamlessly connect your Codex workflows with Discord for real-time notifications and team collaboration.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card card--discord pixel-border glass tilt-3d-polish">
+        <div class="feature-card__icon tilt-3d-child">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.196.373.291a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.419-2.157 2.419zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.419-2.157 2.419z"/>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Webhook Integration</h3>
+        <p class="feature-card__description">Easily send build status, test results, and agent updates to your Discord channels using the configure-notifications skill.</p>
+        <div class="code-block glass" style="margin-top: 1.5rem;">
+          <div class="code-block__header">
+            <span class="code-block__lang">Skill</span>
+          </div>
+          <div class="code-block__content">
+            <code>"configure discord webhook"</code>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-card card--discord pixel-border glass tilt-3d-polish">
+        <div class="feature-card__icon tilt-3d-child">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"></path>
+            <path d="M12 6a6 6 0 1 0 6 6 6 6 0 0 0-6-6zm0 10a4 4 0 1 1 4-4 4 4 0 0 1-4 4z"></path>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Bot Interaction</h3>
+        <p class="feature-card__description">Deploy custom bots to listen for commands, trigger workflows, and provide interactive feedback directly within your Discord server.</p>
+        <div class="code-block glass" style="margin-top: 1.5rem;">
+          <div class="code-block__header">
+            <span class="code-block__lang">Skill</span>
+          </div>
+          <div class="code-block__content">
+            <code>"setup discord bot"</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OpenClaw Integration Section -->
+  <section class="section integrations-section" id="openclaw-integration" data-reveal>
+    <div class="section__header">
+      <h2 class="section__title">OpenClaw Gateway</h2>
+      <p class="section__subtitle">Unified outbound delivery for all your notification channels with intelligent routing and status signaling.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card card--openclaw pixel-border glass tilt-3d-polish">
+        <div class="feature-card__icon tilt-3d-child">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Unified Delivery</h3>
+        <p class="feature-card__description">Send notifications to Discord, Slack, Telegram, and custom webhooks through a single OpenClaw gateway. Intelligent routing ensures messages reach the right channel.</p>
+      </div>
+
+      <div class="feature-card card--openclaw pixel-border glass tilt-3d-polish">
+        <div class="feature-card__icon tilt-3d-child">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Status Signaling</h3>
+        <p class="feature-card__description">Reliable delivery confirmation with retry logic. Track notification status in real-time and ensure critical alerts never get lost.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Telegram Integration Section -->
+  <section class="section integrations-section" id="telegram-integration" data-reveal>
+    <div class="section__header">
+      <h2 class="section__title">Telegram Integration</h2>
+      <p class="section__subtitle">Connect your Codex workflows to Telegram for instant mobile notifications and bot interactions.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card card--telegram pixel-border glass tilt-3d-polish">
+        <div class="feature-card__icon tilt-3d-child">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Bot Notifications</h3>
+        <p class="feature-card__description">Configure your Telegram bot to receive build updates, deployment notifications, and agent status messages directly in your chat.</p>
+        <div class="code-block glass" style="margin-top: 1.5rem;">
+          <div class="code-block__header">
+            <span class="code-block__lang">Skill</span>
+          </div>
+          <div class="code-block__content">
+            <code>"configure telegram notifications"</code>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-card card--telegram pixel-border glass tilt-3d-polish">
+        <div class="feature-card__icon tilt-3d-child">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Command Interface</h3>
+        <p class="feature-card__description">Control your Codex agents via Telegram messages. Start workflows, check status, and receive summaries without leaving your mobile device.</p>
+        <div class="code-block glass" style="margin-top: 1.5rem;">
+          <div class="code-block__header">
+            <span class="code-block__lang">Skill</span>
+          </div>
+          <div class="code-block__content">
+            <code>"setup telegram commands"</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="footer__content">
+        <div class="footer__links">
+          <a href="https://github.com/Yeachan-Heo/oh-my-codex" class="footer__link" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://www.npmjs.com/package/oh-my-codex" class="footer__link" target="_blank" rel="noopener noreferrer">npm</a>
+        </div>
+        <div class="footer__badges">
+          <img src="https://img.shields.io/github/stars/Yeachan-Heo/oh-my-codex?style=flat-square&color=10a37f" alt="GitHub stars">
+          <img src="https://img.shields.io/npm/dm/oh-my-codex?style=flat-square&color=10a37f" alt="npm downloads">
+          <img src="https://img.shields.io/npm/v/oh-my-codex?style=flat-square&color=10a37f" alt="npm version">
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <p class="footer__tagline">Built for OpenAI Codex CLI</p>
+        <p class="footer__copyright">MIT License &copy; 2026 oh-my-codex</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
